@@ -1,0 +1,38 @@
+<app-page-header></app-page-header>
+<mat-card>
+  <!-- Form Section -->
+  <mat-card-header>
+    <mat-card-subtitle>Edit City</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form class="form-field-full" [formGroup]="cityForm" (ngSubmit)="onSubmit()">
+      <div class="row m-b-24">
+        <div class="col-sm-6">
+          <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+            <mat-label>City Name</mat-label>
+            <input matInput formControlName="cname" required>
+            <mat-error *ngIf="cityForm.get('cname')?.hasError('required') && cityForm.get('cname')?.touched">
+              Please enter a valid City Name
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-sm-6">
+          <mat-form-field class="example-full-width" appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="inactive">Inactive</mat-option>
+            </mat-select>
+            <mat-error *ngIf="cityForm.get('status')?.hasError('required')">Status is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <button class="m-l-8 m-r-8" [disabled]="!cityForm.valid" mat-flat-button color="primary">Submit</button>
+          <button type="button" mat-flat-button color="warn">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

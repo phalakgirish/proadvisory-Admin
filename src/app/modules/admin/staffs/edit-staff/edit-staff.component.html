@@ -1,0 +1,79 @@
+<app-page-header></app-page-header>
+<div class="row">
+    <div class="col-sm-12">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-subtitle>Edit Staff</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <form class="form-field-full" [formGroup]="staffForm">
+                    <div class="row m-b-24">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>Name</mat-label>
+                                <input matInput formControlName="name" required [value]="staffData?.name">
+                                <mat-error *ngIf="staffForm.get('name')?.hasError('required') || staffForm.get('name')?.touched">
+                                    Please enter a valid Name
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>User Type</mat-label>
+                                <mat-select formControlName="usertype" required [value]="staffData?.usertype">
+                                    <mat-option [value]="'super-admin'">Super Admin</mat-option>
+                                    <mat-option [value]="'admin'">Admin</mat-option>
+                                    <mat-option [value]="'manager'">Manager</mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="staffForm.get('usertype')?.hasError('required') || staffForm.get('usertype')?.touched">
+                                    User Type is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row m-b-24">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>Mobile</mat-label>
+                                <input matInput formControlName="mobile" type="number" [value]="staffData?.mobile">
+                                <mat-error *ngIf="staffForm.get('mobile')?.hasError('required') || staffForm.get('mobile')?.touched">
+                                    Please enter a valid mobile number
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>Email</mat-label>
+                                <input matInput formControlName="email" required [value]="staffData?.email">
+                                <mat-error *ngIf="staffForm.get('email')?.hasError('required') || staffForm.get('email')?.touched">
+                                    Please enter a valid email address
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row m-b-24">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                                <mat-label>Joining Date</mat-label>
+                                <input matInput [matDatepicker]="picker" formControlName="date" [value]="staffData?.date">
+                                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                                <mat-error *ngIf="staffForm.get('date')?.hasError('required')">
+                                    Please select joining date
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <button class="m-l-8 m-r-8" [disabled]="!staffForm.valid" mat-flat-button color="primary">
+                                Save Changes
+                            </button>
+                            <button type="button" mat-flat-button color="warn" (click)="onCancel()">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

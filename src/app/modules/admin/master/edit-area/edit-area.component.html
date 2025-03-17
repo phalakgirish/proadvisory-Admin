@@ -1,0 +1,71 @@
+<app-page-header></app-page-header>
+<div class="row">
+  <div class="col-sm-12">
+    <!-- Edit Area Form -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Edit Area</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form-field-full" [formGroup]="areaForm" (ngSubmit)="onSubmit()">
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>City Name</mat-label>
+                <mat-select formControlName="cname" required>
+                  <mat-option *ngFor="let city of cityOptions" [value]="city">
+                    {{ city }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="areaForm.get('cname')?.hasError('required')">
+                  Please select a City Name
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Area Name</mat-label>
+                <input matInput formControlName="aname" required>
+                <mat-error *ngIf="areaForm.get('aname')?.hasError('required')">
+                  Please enter a valid Area Name
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Pincode</mat-label>
+                <input matInput formControlName="pincode" required>
+                <mat-error *ngIf="areaForm.get('pincode')?.hasError('required')">
+                  Pincode must be 6 digits
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status" required>
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.viewValue }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="areaForm.get('status')?.hasError('required')">
+                  Please select a status
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <button class="m-l-8 m-r-8" [disabled]="!areaForm.valid" mat-flat-button color="primary">
+                Submit
+              </button>
+              <button type="button" mat-flat-button color="warn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,61 @@
+<app-page-header></app-page-header>
+<div class="row">
+  <div class="col-sm-12">
+    <!-- Edit Property Subtype Form -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Edit Property Subtype</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form-field-full" [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Property Type</mat-label>
+                <mat-select formControlName="propertyType" required>
+                  <mat-option *ngFor="let type of propertyTypeOptions" [value]="type.value">
+                    {{ type.viewValue }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="propertyForm.get('propertyType')?.hasError('required')">
+                  Please select a property type
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Property Subtype Name</mat-label>
+                <input matInput formControlName="pstname" required>
+                <mat-error *ngIf="propertyForm.get('pstname')?.hasError('required')">
+                  Please enter a valid Property Subtype Name
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status" required>
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.viewValue }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="propertyForm.get('status')?.hasError('required')">
+                  Please select a status
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12">
+              <button class="m-l-8 m-r-8" [disabled]="!propertyForm.valid" mat-flat-button color="primary">
+                Submit
+              </button>
+              <button type="button" mat-flat-button color="warn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

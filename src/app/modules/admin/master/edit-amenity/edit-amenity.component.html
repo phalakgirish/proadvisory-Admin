@@ -1,0 +1,54 @@
+<app-page-header></app-page-header>
+<div class="row">
+  <div class="col-sm-12">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Edit Amenity</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form-field-full" [formGroup]="amenityForm" (ngSubmit)="onSubmit()">
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Amenity Name</mat-label>
+                <input matInput formControlName="amenityName" required>
+                <mat-error *ngIf="amenityForm.get('amenityName')?.hasError('required')">
+                  Please enter a valid Amenity Name
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status" required>
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.viewValue }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="amenityForm.get('status')?.hasError('required')">
+                  Please select a status
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 m-b-32">
+              <mat-label>Upload Amenities Icon</mat-label>
+              <app-file-upload formControlName="uploadFile"></app-file-upload>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12">
+              <button class="m-l-8 m-r-8" [disabled]="!amenityForm.valid" mat-flat-button color="primary">
+                Submit
+              </button>
+              <button type="button" mat-flat-button color="warn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

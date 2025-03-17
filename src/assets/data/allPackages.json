@@ -1,0 +1,44 @@
+[
+  {
+    "id": "001",
+    "img": "assets/images/avatars/avatar-1.jpg",
+    "package": "Silver",
+    "email": "test@email.com",
+    "checkIn": "2023-02-25T14:22:18Z",
+    "checkOut": "2023-02-28T14:22:18Z",
+    "roomType": "AED 200",
+    "status": "Active",
+    "mobile": "1234567890",
+    "fName": "John",
+    "lName":"Deo",
+    "payment": "Paid"
+  },
+  {
+    "id": "002",
+    "img": "assets/images/avatars/avatar-2.jpg",
+    "package": "Gold",
+    "email": "test@email.com",
+    "checkIn": "2023-02-12T14:22:18Z",
+    "checkOut": "2023-02-15T14:22:18Z",
+    "roomType": "AED 300",
+    "status": "Active",
+    "mobile": "1234567890",
+    "fName": "Sarah ",
+    "lName":"Smith",
+    "payment": "Unpaid"
+  },
+  {
+    "id": "003",
+    "img": "assets/images/avatars/avatar-3.jpg",
+    "package": "Platinum",
+    "email": "test@email.com",
+    "checkIn": "2023-02-25T14:22:18Z",
+    "checkOut": "2023-02-26T14:22:18Z",
+    "roomType": "AED 500",
+    "status": "Active",
+    "mobile": "1234567890",
+    "fName": "John",
+    "lName":"Deo",
+    "payment": "Paid"
+  }
+]

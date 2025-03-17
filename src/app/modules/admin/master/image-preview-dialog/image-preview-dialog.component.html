@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Image Preview</h1>
+<div mat-dialog-content>
+  <img
+    [src]="data.imageUrl"
+    alt="Amenity Image"
+    style="max-width: 100%;"
+    (error)="onImageError()"
+    aria-describedby="image-description"
+  />
+  <p *ngIf="imageLoadError" class="error-message" id="image-description">
+    Failed to load image.
+  </p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button mat-dialog-close aria-label="Close dialog">Close</button>
+</div>

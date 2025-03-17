@@ -1,0 +1,180 @@
+<app-page-header></app-page-header>
+<div class="row">
+  <div class="col-sm-12">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Add Inventory</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form-field-full" [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Inventory Name</mat-label>
+                <input matInput formControlName="inventoryName" required>
+                <mat-error *ngIf="inventoryForm.get('inventoryName')?.hasError('required')">
+                  Please enter a valid Inventory Name
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>No of BKH</mat-label>
+                <mat-select formControlName="noOfBKH" required>
+                  <mat-option *ngFor="let bkh of bkhOptions" [value]="bkh">{{ bkh }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="inventoryForm.get('noOfBKH')?.hasError('required')">
+                  Please select the number of BKH
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Status</mat-label>
+                <mat-select formControlName="status" required>
+                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                    {{ status.viewValue }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="inventoryForm.get('status')?.hasError('required')">
+                  Please select a status
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12">
+              <button class="m-l-8 m-r-8" [disabled]="!inventoryForm.valid" mat-flat-button color="primary">
+                Submit
+              </button>
+              <button type="button" mat-flat-button color="warn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+    <!-- Table Section -->
+    <mat-card>
+      <mat-card-content>
+        <div class="table-container">
+          <div class="table-header-toolbar">
+            <div class="row">
+              <div class="col-sm-8">
+                <span class="table-header">All Inventories</span>
+                <mat-form-field appearance="outline" class="search-box">
+                  <mat-label class="search-label">Search...</mat-label>
+                  <input #filter (keyup)="applyFilter($event)" matInput type="text">
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-4">
+                <div class="right-side-btn">
+                  <button mat-icon-button [hidden]="!selection.hasValue()" (click)="removeSelectedRows()"
+                    class="tbl-header-btn text-red" matTooltip="Delete">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                  <button mat-icon-button class="text-indigo" (click)="select.open()" matTooltip="Show/Hide Column">
+                    <mat-icon>filter_list</mat-icon>
+                    <mat-select #select [(ngModel)]="filter.value" style="width: 200px; display: table;"
+                      class="column-filter">
+                      <span class="table-column-label">Show/Hide Column</span>
+                      <div *ngFor="let cd of columnDefinitions; trackBy: trackByFn">
+                        <mat-option>
+                          <mat-checkbox (click)="$event.stopPropagation()" [(ngModel)]="cd.visible" color="primary">
+                            {{cd.label}}
+                          </mat-checkbox>
+                        </mat-option>
+                      </div>
+                    </mat-select>
+
+                  </button>
+                  <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
+                    <mat-icon>add_circle_outline</mat-icon>
+                  </button>
+
+                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey"
+                    matTooltip="Refresh">
+                    <mat-icon>refresh</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue"
+                    matTooltip="Xlsx Download">
+                    <mat-icon class="material-icons-outlined">file_download</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+<br>
+          <!-- Table -->
+          <div class="overflow-auto">
+            <div class="responsive_table">
+              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
+                <!-- Checkbox Column -->
+                <ng-container matColumnDef="select">
+                  <mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-6'">
+                    <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="selection.hasValue() && isAllSelected()" color="primary"
+                      [indeterminate]="selection.hasValue() && !isAllSelected()" [ngClass]="'tbl-checkbox'">
+                    </mat-checkbox>
+                  </mat-header-cell>
+                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'">
+                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                      [checked]="selection.isSelected(row)" [ngClass]="'tbl-checkbox'" color="primary">
+                    </mat-checkbox>
+                  </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="inventoryName">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Name</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.inventoryName }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="noOfBKH">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>No of BKH</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.noOfBKH }}</mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.status }}</mat-cell>
+                </ng-container>
+
+
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <mat-header-cell class="pr-0" *matHeaderCellDef>Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row; let i=index;" class="pr-0">
+                    <button mat-icon-button color="accent" (click)="$event.stopPropagation()" (click)="editCall(row)"
+                      class="tbl-action-btn">
+                      <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
+                    </button>
+                    <button mat-icon-button color="accent" (click)="$event.stopPropagation()" (click)="deleteItem(row)"
+                      class="tbl-action-btn">
+                      <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
+                    </button>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="getDisplayedColumns()"></mat-header-row>
+                <mat-row [@rowsAnimation]="" *matRowDef="let row; columns: getDisplayedColumns();"
+                  (click)="editCall(row)" [style.cursor]="'pointer'" matRipple>
+                </mat-row>
+              </table>
+            </div>
+          </div>
+
+          <!-- Paginator -->
+          <mat-paginator #paginator [length]="dataSource.filteredData.length" [pageIndex]="0" [pageSize]="10"
+            [pageSizeOptions]="[5, 10, 25, 100]">
+          </mat-paginator>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+</div>

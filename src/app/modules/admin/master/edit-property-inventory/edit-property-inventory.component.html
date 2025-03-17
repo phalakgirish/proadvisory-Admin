@@ -1,0 +1,59 @@
+<app-page-header></app-page-header>
+<div class="row">
+  <div class="col-sm-12">
+    <!-- Edit Property Inventory Form -->
+    <mat-card>
+      <mat-card-header>
+        <mat-card-subtitle>Edit Property Inventory</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="form-field-full" [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
+          <!-- Property Area Dropdown -->
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Property Area</mat-label>
+                <mat-select formControlName="propertyArea" required>
+                  <mat-option *ngFor="let area of propertyAreas" [value]="area">{{ area }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="inventoryForm.get('propertyArea')?.hasError('required')">
+                  Please select a valid Property Area
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Price</mat-label>
+                <input matInput formControlName="price" required type="number" min="1000">
+                <mat-error *ngIf="inventoryForm.get('price')?.hasError('required')">
+                  Please enter a valid Price
+                </mat-error>
+                <mat-error *ngIf="inventoryForm.get('price')?.hasError('min')">
+                  Price must be at least 1000
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Property Floorplan Image Upload -->
+          <div class="row">
+            <div class="col-sm-12 m-b-32">
+              <mat-label>Upload Property floor plan Image</mat-label>
+              <app-file-upload formControlName="uploadFile"></app-file-upload>
+            </div>
+          </div>
+
+          <!-- Submit & Cancel Buttons -->
+          <div class="row">
+            <div class="col-sm-12">
+              <button class="m-l-8 m-r-8" [disabled]="!inventoryForm.valid" mat-flat-button color="primary">
+                Submit
+              </button>
+              <button type="button" mat-flat-button color="warn">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

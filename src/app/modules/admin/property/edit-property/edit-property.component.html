@@ -1,0 +1,107 @@
+<app-page-header></app-page-header>
+<div class="row">
+    <div class="col-sm-12">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-subtitle>Edit Property</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+                <form class="form-field-full" [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
+
+                    <!-- Property Name & Address -->
+                    <div class="row m-b-8">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Property Name</mat-label>
+                                <input matInput formControlName="propertyName" required>
+                                <mat-error *ngIf="propertyForm.get('propertyName')?.hasError('required')">
+                                    Property Name is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>RERA Number</mat-label>
+                                <input matInput formControlName="reraNumber" required>
+                                <mat-error *ngIf="propertyForm.get('reraNumber')?.hasError('required')">
+                                    RERA Number is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row mb-8">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>City</mat-label>
+                                <input matInput formControlName="city" required>
+                                <mat-error *ngIf="propertyForm.get('city')?.hasError('required')">
+                                    City is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Pincode</mat-label>
+                                <input matInput formControlName="pincode" required>
+                                <mat-error *ngIf="propertyForm.get('pincode')?.hasError('required')">
+                                    Pincode is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+                    <!-- Pincode & Property Type -->
+                    <div class="row m-b-8">
+                        <div class="col-md-6">
+                            <label>Price</label>
+                            <mat-slider 
+                              class="w-100 d-block"
+                              min="100000" max="10000000" step="50000" tickInterval="500000"
+                              (input)="updatePrice($event)">
+                              <input matSliderThumb [formControl]="priceControl">
+                            </mat-slider>
+                            <div class="text-muted">Selected Price: ₹{{ priceControl.value }}</div>
+                          </div>
+                          
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Property Type</mat-label>
+                                <mat-select formControlName="propertyType" required>
+                                    <mat-option value="Residential property">Residential property</mat-option>
+                                    <mat-option value="Commercial property">Commercial property</mat-option>
+                                    <mat-option value="Real property">Real property</mat-option>                                    
+                                </mat-select>
+                                <mat-error *ngIf="propertyForm.get('propertyType')?.hasError('required')">
+                                    Property Type is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+
+
+                    <!-- Added Date & Possession Date -->
+                    <div class="row m-b-8">
+
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Possession Date</mat-label>
+                                <input matInput [matDatepicker]="picker2" formControlName="possessionDate" required>
+                                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                                <mat-datepicker #picker2></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <br>
+                    <!-- Submit & Cancel Buttons -->
+                    <div class="row m-b-8">
+                        <div class="col-sm-12">
+                            <button [disabled]="!propertyForm.valid" mat-flat-button color="primary">Edit</button>
+                            <button type="button" mat-flat-button color="warn">Cancel</button>
+                        </div>
+                    </div>
+
+                </form>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

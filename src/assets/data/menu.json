@@ -1,0 +1,167 @@
+{
+  "menu": [
+  
+    
+    {
+      "route": "dashboard",
+      "name": "dashboard",
+      "type": "link",
+      "icon": "space_dashboard",   
+      "permissions": {
+        "only": "ADMIN"
+      }
+    },
+    {
+      "route": "bookings",
+      "name": "bookings",
+      "type": "sub",
+      "icon": "book-open",
+      "children": [
+        {
+          "route": "all-bookings",
+          "name": "all-bookings",
+          "type": "link"
+        }
+       
+      ],
+      "permissions": {
+        "only": "ADMIN"
+      }
+    },
+    {
+      "route": "property",
+      "name": "property",
+      "type": "sub",
+      "icon": "book-open",
+      "children": [
+        {
+          "route": "all-property",
+          "name": "all-property",
+          "type": "link"
+        },
+        {
+          "route": "add-property",
+          "name": "add-property",
+          "type": "link"
+        },
+        {
+          "route": "edit-property",
+          "name": "edit-property",
+          "type": "link"
+        }
+       
+      ],
+      "permissions": {
+        "only": "ADMIN"
+      }
+    },
+    {
+      "route": "master",
+      "name": "master",
+      "type": "sub",
+      "icon": "book-open",
+      "children": [
+        {
+          "route": "amenities",
+          "name": "amenities",
+          "type": "link"
+        },
+        {
+          "route": "area",
+          "name": "area",
+          "type": "link"
+        },
+        {
+          "route": "property-type",
+          "name": "property-type",
+          "type": "link"
+        },
+        {
+          "route": "property-subtype",
+          "name": "property-subtype",
+          "type": "link"
+        },
+        {
+          "route": "inventory",
+          "name": "inventory",
+          "type": "link"
+        },
+        {
+          "route": "property-inventory",
+          "name": "property-inventory",
+          "type": "link"
+        },
+        {
+          "route": "city",
+          "name": "city",
+          "type": "link"
+        }
+       
+      ],
+      "permissions": {
+        "only": "ADMIN"
+      }
+    },
+    {
+      "route": "users",
+      "name": "users",
+      "type": "sub",
+      "icon": "book-open",
+      "children": [
+        {
+          "route": "all-users",
+          "name": "all-users",
+          "type": "link"
+        },
+        {
+          "route": "add-user",
+          "name": "add-user",
+          "type": "link"
+        },
+        {
+          "route": "edit-user",
+          "name": "edit-user",
+          "type": "link"
+        }
+       
+      ],
+      "permissions": {
+        "only": "ADMIN"
+      }
+    },
+    
+    
+    {
+      "route": "staffs",
+      "name": "staffs",
+      "type": "sub",
+      "icon": "people_alt",
+      "children": [
+        {
+          "route": "all-staffs",
+          "name": "all-staffs",
+          "type": "link"
+        },
+        {
+          "route": "add-staff",
+          "name": "add-staff",
+          "type": "link"
+        },
+        {
+          "route": "edit-staff",
+          "name": "edit-staff",
+          "type": "link"
+        },
+        {
+          "route": "staff-profile",
+          "name": "staff-profile",
+          "type": "link"
+        }
+      ],
+      "permissions": {
+         "only": "ADMIN"
+      }
+    }
+ 
+  ]
+}
