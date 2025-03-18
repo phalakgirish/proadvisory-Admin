@@ -19,11 +19,12 @@ import { PageHeaderComponent } from '@shared/components/page-header/page-header.
 import { FeatherIconsComponent } from "../../../../shared/components/feather-icons/feather-icons.component";
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurdService } from 'app/services/curd.service';
+import { City } from 'app/interfaces/city';
 
 
 interface Area {
   id?: string; // Ensure 'id' is optional to prevent errors
-  cname: string;
+  cname: any;
   aname: string;
   pincode: string;
   status: string;
@@ -55,7 +56,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['select', 'cname', 'aname', 'pincode', 'status', 'actions'];
   selection = new SelectionModel<Area>(true, []);
 
-  cityOptions: string[] = ['City 1', 'City 2', 'City 3'];
+  cityOptions: any;
   statusOptions = [
     { value: 'active', viewValue: 'Active' },
     { value: 'inactive', viewValue: 'Inactive' },
@@ -72,7 +73,9 @@ export class AreaComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.createForm();
+    this.fetchCities();
     this.fetchAreas();
+    
   }
 
   ngAfterViewInit(): void {
@@ -97,6 +100,19 @@ export class AreaComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.showSnackBar('Failed to load areas.');
+      },
+    });
+  }
+
+  fetchCities(): void {
+    this.curdService.getData<City[]>('city').subscribe({
+      next: (city) => {
+        console.log(city);
+        this.cityOptions = city;
+
+      },
+      error: () => {
+        this.showSnackBar('Failed to load Cities.');
       },
     });
   }

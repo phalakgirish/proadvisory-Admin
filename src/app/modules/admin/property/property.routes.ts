@@ -19,9 +19,10 @@ export const PROPERTY_ROUTE: Route[] = [
     component: ViewPropertyComponent,
   },
   {
-    path: 'edit-property',
+    path: 'edit-property/:id',
     component: EditPropertyComponent,
-  },
+},
+
   
   { path: '**', component: Page404Component },
 ];

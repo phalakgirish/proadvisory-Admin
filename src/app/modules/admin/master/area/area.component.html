@@ -13,8 +13,8 @@
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>City Name</mat-label>
                 <mat-select formControlName="cname" required>
-                  <mat-option *ngFor="let city of cityOptions" [value]="city">
-                    {{ city }}
+                  <mat-option *ngFor="let city of cityOptions" [value]="city.id">
+                    {{ city.cname }}
                   </mat-option>
                 </mat-select>
                 <mat-error *ngIf="areaForm.get('cname')?.hasError('required')">
@@ -123,7 +123,7 @@
                 <!-- City Name Column -->
                 <ng-container matColumnDef="cname">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>City Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.cname }}</mat-cell>
+                  <mat-cell *matCellDef="let row">{{ row.cname?.cname }}</mat-cell>
                 </ng-container>
 
                 <!-- Area Name Column -->

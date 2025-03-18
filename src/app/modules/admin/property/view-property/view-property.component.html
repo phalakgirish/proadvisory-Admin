@@ -3,123 +3,79 @@
   <mat-card-header>
     <div class="table-header-toolbar">
       <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-10">
           <span class="table-header">All Properties</span>
           <mat-form-field appearance="outline" class="search-box">
             <mat-label class="search-label">Search...</mat-label>
-            <!-- Filter Input -->
-            <input #filter (keyup)="applyFilter($event)" matInput type="text" placeholder="Search properties">
-
+            <input matInput (keyup)="applyFilter($event)" placeholder="Search properties">
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
         </div>
-        <div class="col-sm-4">
-          <div class="right-side-btn">
-            <button mat-icon-button [hidden]=!selection.hasValue() (click)="removeSelectedRows()"
-              class="tbl-header-btn text-red" matTooltip="Delete">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
-            <button mat-icon-button class="text-indigo" (click)="select.open()" matTooltip="Show/Hide Column">
-              <mat-icon>filter_list</mat-icon>
-              <mat-select #select [(ngModel)]="filter.value" style="width: 200px; display: table;"
-                class="column-filter">
-                <span class="table-column-label">Show/Hide Column</span>
-                <mat-option *ngFor="let cd of columnDefinitions">
-                  <mat-checkbox (click)="$event.stopPropagation()" [(ngModel)]="cd.visible"
-                    color="primary">{{cd.label}}</mat-checkbox>
-                </mat-option>
-              </mat-select>
-            </button>
-            <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
-              <mat-icon>add_circle_outline</mat-icon>
-            </button>
-            <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey" matTooltip="Refresh">
-              <mat-icon>refresh</mat-icon>
-            </button>
-            <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue" matTooltip="Xlsx Download">
-              <mat-icon class="material-icons-outlined">file_download</mat-icon>
-            </button>
-          </div>
+        <div class="col-sm-2">
+          <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
+            <mat-icon>add_circle_outline</mat-icon>
+          </button>
+          <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey" matTooltip="Refresh">
+            <mat-icon>refresh</mat-icon>
+          </button>
         </div>
       </div>
     </div>
   </mat-card-header>
 
   <mat-card-content>
-    <div class="overflow-auto">
-      <table mat-table [dataSource]="dataSource" matSort class="mat-table">
-        <!-- Property Name Column -->
-        <ng-container matColumnDef="propertyName">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Property Name </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.propertyName }}</mat-cell>
-        </ng-container>
+    <table mat-table [dataSource]="dataSource" matSort class="mat-table">
+      <ng-container matColumnDef="propertyName">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Property Name</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.propertyName }}</mat-cell>
+      </ng-container>
 
-        <!-- RERA Number Column -->
-        <ng-container matColumnDef="reraNumber">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> RERA Number </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.reraNumber }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="reraNumber">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>RERA Number</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.reraNumber }}</mat-cell>
+      </ng-container>
 
-        <!-- City Column -->
-        <ng-container matColumnDef="city">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> City </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.city }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="city">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>City</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.city?.cname || 'N/A' }}</mat-cell>
+      </ng-container>
 
-        <!-- Pincode Column -->
-        <ng-container matColumnDef="pincode">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Pincode </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.pincode }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="pincode">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Pincode</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.pincode }}</mat-cell>
+      </ng-container>
 
-        <!-- Price Column -->
-        <ng-container matColumnDef="price">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Price </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.price | currency }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="price">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Price</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.price | currency: 'INR': 'symbol' }}</mat-cell>
+      </ng-container>
 
-        <!-- Property Type Column -->
-        <ng-container matColumnDef="propertyType">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Property Type </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.propertyType }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="propertyType">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Property Type</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.propertyType?.ptname || 'N/A' }}</mat-cell>
+      </ng-container>
 
-        <!-- Possession Date Column -->
-        <ng-container matColumnDef="possessionDate">
-          <mat-header-cell *matHeaderCellDef mat-sort-header> Possession Date </mat-header-cell>
-          <mat-cell *matCellDef="let row">{{ row.possessionDate | date: 'MM/dd/yyyy' }}</mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="possessionDate">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Possession Date</mat-header-cell>
+        <mat-cell *matCellDef="let row">{{ row.possessionDate | date: 'MM/dd/yyyy' }}</mat-cell>
+      </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <mat-header-cell *matHeaderCellDef> Actions </mat-header-cell>
-          <mat-cell *matCellDef="let row">
-            <button mat-icon-button color="primary" (click)="$event.stopPropagation(); editCall(row)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteItem(row)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </mat-cell>
-        </ng-container>
+      <ng-container matColumnDef="actions">
+        <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <button mat-icon-button color="primary" (click)="$event.stopPropagation(); editCall(row)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="$event.stopPropagation(); deleteItem(row)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
 
-        <mat-header-row
-          *matHeaderRowDef="['propertyName', 'reraNumber', 'city', 'pincode', 'price', 'propertyType', 'possessionDate', 'actions']"></mat-header-row>
-        <mat-row
-          *matRowDef="let row; columns: ['propertyName', 'reraNumber', 'city', 'pincode', 'price', 'propertyType', 'possessionDate', 'actions'];"
-          matRipple>
-        </mat-row>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple></mat-row>
+    </table>
 
-      </table>
-    </div>
-
-    <!-- Loading spinner -->
-    <div *ngIf="isLoading">
-      <mat-progress-spinner color="primary" [diameter]="40" mode="indeterminate"></mat-progress-spinner>
-    </div>
-
-    <!-- Paginator -->
-    <mat-paginator [length]="dataSource.filteredData.length" [pageIndex]="0" [pageSize]="10"
-      [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+    <mat-paginator [length]="dataSource.filteredData.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
   </mat-card-content>
 </mat-card>

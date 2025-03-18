@@ -1,9 +1,9 @@
 <div class="file-drop-area" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
-    <button mat-raised-button color="primary" (click)="fileInput.click()">Choose files</button>
-    <span class="file-msg">{{ files.length > 0 ? getFileNames() : 'or drag and drop files here' }}</span>
-    <input #fileInput class="file-input" type="file" multiple (change)="onFileSelected($event)">
-  </div>
-  
+  <button mat-raised-button color="primary" type="button" (click)="fileInput.click()">Choose file</button>
+  <span>{{ files.length ? getFileNames() : 'No file selected' }}</span>
+  <input #fileInput type="file" multiple (change)="onFileSelected($event)" hidden>
+</div>
+
   <ul *ngIf="files.length > 0">
     <li *ngFor="let file of files">{{ file.name }}</li>
   </ul>
