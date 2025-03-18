@@ -1,20 +1,18 @@
 <app-page-header></app-page-header>
 <div class="row">
   <div class="col-sm-12">
-    <!-- Add Property Inventory Form -->
     <mat-card>
       <mat-card-header>
         <mat-card-subtitle>Add Property Inventory</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <form class="form-field-full" [formGroup]="inventoryForm" (ngSubmit)="onSubmit()">
-          <!-- Property Area Dropdown -->
           <div class="row m-b-24">
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Property Area</mat-label>
+                <mat-label>Property Name</mat-label>
                 <mat-select formControlName="propertyArea" required>
-                  <mat-option *ngFor="let area of propertyAreas" [value]="area">{{ area }}</mat-option>
+                  <mat-option *ngFor="let name of propertyName" [value]="name">{{ name }}</mat-option>
                 </mat-select>
                 <mat-error *ngIf="inventoryForm.get('propertyArea')?.hasError('required')">
                   Please select a valid Property Area
@@ -23,19 +21,50 @@
             </div>
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Price</mat-label>
-                <input matInput formControlName="price" required type="number" min="1000">
-                <mat-error *ngIf="inventoryForm.get('price')?.hasError('required')">
-                  Please enter a valid Price
-                </mat-error>
-                <mat-error *ngIf="inventoryForm.get('price')?.hasError('min')">
-                  Price must be at least 1000
+                <mat-label>Inventory Name</mat-label>
+                <mat-select formControlName="inventoryName" required>
+                  <mat-option *ngFor="let type of inventoryTypes" [value]="type">{{ type }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="inventoryForm.get('inventoryName')?.hasError('required')">
+                  Please select a valid Inventory Name
                 </mat-error>
               </mat-form-field>
             </div>
           </div>
 
-          <!-- Property Floorplan Image Upload (No mat-form-field) -->
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Carpet Area</mat-label>
+                <input matInput formControlName="carpetArea" type="number" min="1">
+                <mat-error *ngIf="inventoryForm.get('carpetArea')?.hasError('min')">
+                  Carpet area must be at least 1
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Min Price</mat-label>
+                <input matInput formControlName="minPrice" type="number" min="1000">
+                <mat-error *ngIf="inventoryForm.get('minPrice')?.hasError('min')">
+                  Min Price must be at least 1000
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Max Price</mat-label>
+                <input matInput formControlName="maxPrice" type="number" min="1000">
+                <mat-error *ngIf="inventoryForm.get('maxPrice')?.hasError('min')">
+                  Max Price must be at least 1000
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
           <div class="row">
             <div class="col-sm-12 m-b-32">
               <mat-label>Upload Property floor plan Image</mat-label>
@@ -43,7 +72,6 @@
             </div>
           </div>
 
-          <!-- Submit & Cancel Buttons -->
           <div class="row">
             <div class="col-sm-12">
               <button class="m-l-8 m-r-8" [disabled]="!inventoryForm.valid" mat-flat-button color="primary">
@@ -56,7 +84,6 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Table Section -->
     <mat-card>
       <mat-card-content>
         <div class="table-container">
@@ -79,10 +106,12 @@
                   <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
                     <mat-icon>add_circle_outline</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey" matTooltip="Refresh">
+                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey"
+                    matTooltip="Refresh">
                     <mat-icon>refresh</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue" matTooltip="Xlsx Download">
+                  <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue"
+                    matTooltip="Xlsx Download">
                     <mat-icon class="material-icons-outlined">file_download</mat-icon>
                   </button>
                 </div>
@@ -90,43 +119,54 @@
             </div>
           </div>
           <br>
-          <!-- Table -->
           <div class="overflow-auto">
             <div class="responsive_table">
               <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
-                <!-- Property Area Column -->
                 <ng-container matColumnDef="propertyArea">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Property Area</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.propertyArea }}</mat-cell>
                 </ng-container>
-
-                <!-- Price Column -->
-                <ng-container matColumnDef="price">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Price</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.price }}</mat-cell>
+          
+                <ng-container matColumnDef="inventoryName">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Name</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.inventoryName }}</mat-cell>
                 </ng-container>
-
-                <!-- Uploaded File Column -->
+          
+                <ng-container matColumnDef="carpetArea">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Carpet Area</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.carpetArea }}</mat-cell>
+                </ng-container>
+          
+                <ng-container matColumnDef="minPrice">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Min Price</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.minPrice }}</mat-cell>
+                </ng-container>
+          
+                <ng-container matColumnDef="maxPrice">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Max Price</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.maxPrice }}</mat-cell>
+                </ng-container>
+          
                 <ng-container matColumnDef="uploadFile">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded File</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.uploadFile }}</mat-cell>
                 </ng-container>
-
+          
                 <ng-container matColumnDef="actions">
-                    <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-                    <mat-cell *matCellDef="let row">
-                        <button mat-icon-button color="accent" (click)="editCall(row)" class="tbl-action-btn">
-                            <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
-                        </button>
-                        <button mat-icon-button color="accent" (click)="deleteItem(row)" class="tbl-action-btn">
-                            <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
-                        </button>
-                        <button mat-icon-button color="accent" (click)="viewImage(row)" class="tbl-action-btn">
-                            <app-feather-icons [icon]="'eye'" [class]="'tbl-fav-eye'"></app-feather-icons>
-                        </button>
-                    </mat-cell>
+                  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+                  <mat-cell *matCellDef="let row">
+                    <button mat-icon-button color="accent" (click)="editCall(row)" class="tbl-action-btn">
+                      <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
+                    </button>
+                    <button mat-icon-button color="accent" (click)="deleteItem(row)" class="tbl-action-btn">
+                      <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
+                    </button>
+                    <button mat-icon-button color="accent" (click)="viewImage(row)" class="tbl-action-btn">
+                      <app-feather-icons [icon]="'eye'" [class]="'tbl-fav-eye'"></app-feather-icons>
+                    </button>
+                  </mat-cell>
                 </ng-container>
-
+          
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
                 <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
               </table>
@@ -134,8 +174,8 @@
           </div>
 
           <!-- Paginator -->
-          <mat-paginator [length]="dataSource.filteredData.length" [pageSize]="10"
-            [pageSizeOptions]="[5, 10, 25, 100]" (page)="pageEvent($event)">
+          <mat-paginator [length]="dataSource.filteredData.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+            (page)="pageEvent($event)">
           </mat-paginator>
         </div>
       </mat-card-content>

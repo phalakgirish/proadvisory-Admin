@@ -30,8 +30,11 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
 
 interface Inventory {
   propertyArea: string;
-  price: number;
+  carpetArea: number;
+  minPrice: number;
+  maxPrice: number;
   uploadFile: string;
+  inventoryName: string;
 }
 
 @Component({
@@ -65,36 +68,49 @@ export class PropertyInventoryComponent implements OnInit {
     throw new Error('Method not implemented.');
   }
   inventoryForm: FormGroup;
-  propertyAreas = ['Area 1', 'Area 2', 'Area 3', 'Area 4', 'Area 5'];
+  propertyName = ['Sai ', 'Sai Niwas'];
+  inventoryTypes = ['Residential', 'Commercial', 'Industrial'];
   dataSource = new MatTableDataSource<Inventory>([
-    { propertyArea: 'Area 1', price: 1500, uploadFile: 'https://via.placeholder.com/150' },
-    { propertyArea: 'Area 2', price: 2000, uploadFile: 'https://via.placeholder.com/200' },
-    { propertyArea: 'Area 3', price: 2500, uploadFile: 'https://via.placeholder.com/250' },
-    { propertyArea: 'Area 4', price: 3000, uploadFile: 'https://via.placeholder.com/300' },
-    { propertyArea: 'Area 5', price: 3500, uploadFile: 'https://via.placeholder.com/350' },
-    { propertyArea: 'Area 1', price: 1800, uploadFile: 'https://via.placeholder.com/180' },
-    { propertyArea: 'Area 2', price: 2200, uploadFile: 'https://via.placeholder.com/220' },
-    { propertyArea: 'Area 3', price: 2700, uploadFile: 'https://via.placeholder.com/270' },
-    { propertyArea: 'Area 4', price: 3200, uploadFile: 'https://via.placeholder.com/320' },
-    { propertyArea: 'Area 5', price: 3700, uploadFile: 'https://via.placeholder.com/370' },
+    {
+      propertyArea: 'Sai',
+      carpetArea: 1000,
+      minPrice: 1500000,
+      maxPrice: 2500000,
+      uploadFile: 'https://via.placeholder.com/150',
+      inventoryName: 'Residential',
+    },
+    {
+      propertyArea: 'Sai Niwas',
+      carpetArea: 1500,
+      minPrice: 2000000,
+      maxPrice: 3000000,
+      uploadFile: 'https://via.placeholder.com/200',
+      inventoryName: 'Commercial',
+    },
   ]);
-  displayedColumns: string[] = ['propertyArea', 'price', 'uploadFile', 'actions'];
+  displayedColumns: string[] = ['propertyArea', 'inventoryName', 'carpetArea', 'minPrice', 'maxPrice', 'uploadFile', 'actions'];
   selection = new SelectionModel<Inventory>(true, []);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator; // Definite assignment
-  @ViewChild(MatSort) sort!: MatSort; // Definite assignment
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private fb: FormBuilder,private dialog: MatDialog) {
+  constructor(private fb: FormBuilder, private dialog: MatDialog) {
     this.inventoryForm = this.fb.group({
       propertyArea: ['', Validators.required],
-      price: ['', [Validators.required, Validators.min(1000)]],
-      uploadFile: ['']
+      carpetArea: ['', [Validators.min(1)]],
+      minPrice: ['', [Validators.min(1000)]],
+      maxPrice: ['', [Validators.min(1000)]],
+      uploadFile: [''],
+      inventoryName: ['', Validators.required],
     });
   }
 
   ngOnInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    console.log('Data Source:', this.dataSource.data);
+    console.log('Property Names:', this.propertyName);
+    console.log('Inventory Types:', this.inventoryTypes);
   }
 
   onSubmit(): void {
@@ -119,7 +135,7 @@ export class PropertyInventoryComponent implements OnInit {
   }
 
   exportExcel(): void {
-    
+
   }
 
   editCall(row: Inventory): void {
