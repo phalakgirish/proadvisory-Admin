@@ -46,9 +46,11 @@
       </ng-container>
 
       <ng-container matColumnDef="price">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Price</mat-header-cell>
-        <mat-cell *matCellDef="let row">{{ row.price | currency: 'INR': 'symbol' }}</mat-cell>
-      </ng-container>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Price Range (in Crore)</mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          {{ (row.minPrice / 10000000) | number: '1.2-2' }} - {{ (row.maxPrice / 10000000) | number: '1.2-2' }} Crore
+        </mat-cell>
+      </ng-container>      
 
       <ng-container matColumnDef="propertyType">
         <mat-header-cell *matHeaderCellDef mat-sort-header>Property Type</mat-header-cell>

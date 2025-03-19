@@ -44,6 +44,18 @@
             </div>
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
+                <mat-label>Built-up Area</mat-label>
+                <input matInput formControlName="builtUpArea" type="number" min="1">
+                <mat-error *ngIf="inventoryForm.get('builtUpArea')?.hasError('min')">
+                  Built-up area must be at least 1
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row m-b-24">
+            <div class="col-sm-6">
+              <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Min Price</mat-label>
                 <input matInput formControlName="minPrice" type="number" min="1000">
                 <mat-error *ngIf="inventoryForm.get('minPrice')?.hasError('min')">
@@ -51,9 +63,6 @@
                 </mat-error>
               </mat-form-field>
             </div>
-          </div>
-
-          <div class="row m-b-24">
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Max Price</mat-label>
@@ -110,10 +119,7 @@
                     matTooltip="Refresh">
                     <mat-icon>refresh</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue"
-                    matTooltip="Xlsx Download">
-                    <mat-icon class="material-icons-outlined">file_download</mat-icon>
-                  </button>
+                  
                 </div>
               </div>
             </div>
@@ -126,32 +132,37 @@
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Property Area</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.propertyArea }}</mat-cell>
                 </ng-container>
-          
+            
                 <ng-container matColumnDef="inventoryName">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Name</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.inventoryName }}</mat-cell>
                 </ng-container>
-          
+            
                 <ng-container matColumnDef="carpetArea">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Carpet Area</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.carpetArea }}</mat-cell>
                 </ng-container>
-          
+            
+                <ng-container matColumnDef="builtUpArea">
+                  <mat-header-cell *matHeaderCellDef mat-sort-header>Built-up Area</mat-header-cell>
+                  <mat-cell *matCellDef="let row">{{ row.builtUpArea }}</mat-cell>
+                </ng-container>
+            
                 <ng-container matColumnDef="minPrice">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Min Price</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.minPrice }}</mat-cell>
                 </ng-container>
-          
+            
                 <ng-container matColumnDef="maxPrice">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Max Price</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.maxPrice }}</mat-cell>
                 </ng-container>
-          
+            
                 <ng-container matColumnDef="uploadFile">
                   <mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded File</mat-header-cell>
                   <mat-cell *matCellDef="let row">{{ row.uploadFile }}</mat-cell>
                 </ng-container>
-          
+            
                 <ng-container matColumnDef="actions">
                   <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
                   <mat-cell *matCellDef="let row">
@@ -166,11 +177,12 @@
                     </button>
                   </mat-cell>
                 </ng-container>
-          
+            
                 <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
                 <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
               </table>
             </div>
+            
           </div>
 
           <!-- Paginator -->

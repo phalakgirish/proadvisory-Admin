@@ -31,9 +31,10 @@ import { MultipleFileUploadComponent } from '@shared/components/multiple-file-up
 import { CurdService } from 'app/services/curd.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { City } from 'app/interfaces/city';
+import { Router } from '@angular/router';
 
 interface Property {
-  _id:string;
+  _id: string;
   propertyName: string;
   reraNumber: string;
   city: string;
@@ -47,13 +48,16 @@ interface Property {
   amenities: string;
   possessionDate: any;
   uploadFile: string;
-  price: number;
+  minPrice: number; 
+  maxPrice: number; 
+  pricePerSqFt: number; 
   mapLink: string;
   advisorName: string;
   description: string;
   propertyStatus: string;
   propertyType: string;
 }
+
 
 interface Area {
   areaId: string;
@@ -140,7 +144,8 @@ export class AddPropertyComponent implements OnInit {
     private fb: FormBuilder,
     private http: HttpClient,
     private snackBar: MatSnackBar,
-    private curdService: CurdService
+    private curdService: CurdService,
+    private router: Router
   ) {
     this.priceControl = new FormControl(100000, [
       Validators.required,
@@ -162,13 +167,16 @@ export class AddPropertyComponent implements OnInit {
       amenities: [''],
       possessionDate: ['', Validators.required],
       uploadFile: [''],
-      price: this.priceControl,
+      minPrice: ['', Validators.required],
+      maxPrice: ['', Validators.required], 
+      priceperSqrt: ['', Validators.required],
       mapLink: ['', Validators.required],
       advisorName: ['', Validators.required],
       description: ['', Validators.required],
       propertyStatus: ['', Validators.required],
       propertyType: ['', Validators.required],
     });
+    
   }
 
   ngOnInit() {
@@ -296,15 +304,14 @@ export class AddPropertyComponent implements OnInit {
     }
   
     onSubmit() {
-      console.log();
       console.log('Form Submitted!');
       this.submitted = true;
-  
+    
       if (this.propertyForm.invalid) {
         console.log('Form is invalid:', this.propertyForm.errors);
         return;
       }
-  
+    
       this.curdService.postData('properties', this.propertyForm.value).subscribe({
         next: (res: any) => {
           if (res) {
@@ -330,6 +337,7 @@ export class AddPropertyComponent implements OnInit {
           this.err_message = err?.error?.message || 'Something went wrong. Please try again.';
           setTimeout(() => {
             this.err_message = '';
+            this.router.navigate(['/all-property']);
           }, 3000);
         },
         complete: () => {
@@ -337,6 +345,7 @@ export class AddPropertyComponent implements OnInit {
         },
       });
     }
+    
   
     showSnackBar(message: string) {
       this.snackBar.open(message, 'Close', {
