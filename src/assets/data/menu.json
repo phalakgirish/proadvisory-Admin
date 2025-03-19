@@ -48,6 +48,11 @@
           "route": "edit-property",
           "name": "edit-property",
           "type": "link"
+        },
+        {
+          "route": "property-inventory",
+          "name": "property-inventory",
+          "type": "link"
         }
        
       ],
@@ -84,11 +89,6 @@
         {
           "route": "inventory",
           "name": "inventory",
-          "type": "link"
-        },
-        {
-          "route": "property-inventory",
-          "name": "property-inventory",
           "type": "link"
         },
         {

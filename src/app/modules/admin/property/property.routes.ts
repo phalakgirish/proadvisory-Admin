@@ -3,6 +3,7 @@ import { Page404Component } from 'app/modules/sessions/page404/page404.component
 import { AddPropertyComponent } from './add-property/add-property.component';
 import { ViewPropertyComponent } from './view-property/view-property.component';
 import { EditPropertyComponent } from './edit-property/edit-property.component';
+import { PropertyInventoryComponent } from '../master/property-inventory/property-inventory.component';
 
 export const PROPERTY_ROUTE: Route[] = [
   {
@@ -21,6 +22,10 @@ export const PROPERTY_ROUTE: Route[] = [
   {
     path: 'edit-property/:id',
     component: EditPropertyComponent,
+},
+{
+  path: 'property-inventory',
+  component: PropertyInventoryComponent,
 },
 
   

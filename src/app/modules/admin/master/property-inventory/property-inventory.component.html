@@ -11,24 +11,25 @@
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Property Name</mat-label>
-                <mat-select formControlName="propertyArea" required>
-                  <mat-option *ngFor="let name of propertyName" [value]="name">{{ name }}</mat-option>
+                <mat-select formControlName="propertyName" required>
+                  <mat-option *ngFor="let name of propertyOptions" [value]="name._id">{{ name.propertyName }}</mat-option>
                 </mat-select>
-                <mat-error *ngIf="inventoryForm.get('propertyArea')?.hasError('required')">
-                  Please select a valid Property Area
+                <mat-error *ngIf="inventoryForm.get('propertyName')?.hasError('required')">
+                  Please select a valid Property Name
                 </mat-error>
               </mat-form-field>
             </div>
             <div class="col-sm-6">
               <mat-form-field class="example-full-width" appearance="outline">
                 <mat-label>Inventory Name</mat-label>
-                <mat-select formControlName="inventoryName" required>
-                  <mat-option *ngFor="let type of inventoryTypes" [value]="type">{{ type }}</mat-option>
+                <mat-select formControlName="inventory" required>
+                  <mat-option *ngFor="let type of inventoryOptions" [value]="type._id">{{ type.inventoryName }}</mat-option>
                 </mat-select>
-                <mat-error *ngIf="inventoryForm.get('inventoryName')?.hasError('required')">
+                <mat-error *ngIf="inventoryForm.get('inventory')?.hasError('required')">
                   Please select a valid Inventory Name
                 </mat-error>
               </mat-form-field>
+              
             </div>
           </div>
 
@@ -94,103 +95,100 @@
     </mat-card>
 
     <mat-card>
-      <mat-card-content>
-        <div class="table-container">
-          <div class="table-header-toolbar">
-            <div class="row">
-              <div class="col-sm-8">
-                <span class="table-header">All Property Inventories</span>
-                <mat-form-field appearance="outline" class="search-box">
-                  <mat-label class="search-label">Search...</mat-label>
-                  <input #filter (keyup)="applyFilter($event)" matInput type="text">
-                  <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
-              </div>
-              <div class="col-sm-4">
-                <div class="right-side-btn">
-                  <button mat-icon-button [hidden]="!selection.hasValue()" (click)="removeSelectedRows()"
-                    class="tbl-header-btn text-red" matTooltip="Delete">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
-                    <mat-icon>add_circle_outline</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey"
-                    matTooltip="Refresh">
-                    <mat-icon>refresh</mat-icon>
-                  </button>
-                  
-                </div>
-              </div>
+  <mat-card-content>
+    <div class="table-container">
+      <div class="table-header-toolbar">
+        <div class="row">
+          <div class="col-sm-8">
+            <span class="table-header">All Property Inventories</span>
+            <mat-form-field appearance="outline" class="search-box">
+              <mat-label class="search-label">Search...</mat-label>
+              <input #filter (keyup)="applyFilter($event)" matInput type="text">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+          <div class="col-sm-4">
+            <div class="right-side-btn">
+              <button mat-icon-button [hidden]="!selection.hasValue()" (click)="removeSelectedRows()"
+                class="tbl-header-btn text-red" matTooltip="Delete">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+              <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
+                <mat-icon>add_circle_outline</mat-icon>
+              </button>
+              <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey"
+                matTooltip="Refresh">
+                <mat-icon>refresh</mat-icon>
+              </button>
             </div>
           </div>
-          <br>
-          <div class="overflow-auto">
-            <div class="responsive_table">
-              <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
-                <ng-container matColumnDef="propertyArea">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Property Area</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.propertyArea }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="inventoryName">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Name</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.inventoryName }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="carpetArea">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Carpet Area</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.carpetArea }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="builtUpArea">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Built-up Area</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.builtUpArea }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="minPrice">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Min Price</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.minPrice }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="maxPrice">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Max Price</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.maxPrice }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="uploadFile">
-                  <mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded File</mat-header-cell>
-                  <mat-cell *matCellDef="let row">{{ row.uploadFile }}</mat-cell>
-                </ng-container>
-            
-                <ng-container matColumnDef="actions">
-                  <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-                  <mat-cell *matCellDef="let row">
-                    <button mat-icon-button color="accent" (click)="editCall(row)" class="tbl-action-btn">
-                      <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
-                    </button>
-                    <button mat-icon-button color="accent" (click)="deleteItem(row)" class="tbl-action-btn">
-                      <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
-                    </button>
-                    <button mat-icon-button color="accent" (click)="viewImage(row)" class="tbl-action-btn">
-                      <app-feather-icons [icon]="'eye'" [class]="'tbl-fav-eye'"></app-feather-icons>
-                    </button>
-                  </mat-cell>
-                </ng-container>
-            
-                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-              </table>
-            </div>
-            
-          </div>
-
-          <!-- Paginator -->
-          <mat-paginator [length]="dataSource.filteredData.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
-            (page)="pageEvent($event)">
-          </mat-paginator>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+      <br>
+      <div class="overflow-auto">
+        <div class="responsive_table">
+          <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
+            <ng-container matColumnDef="propertyName">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Property Name</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.propertyName }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="inventoryName">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Name</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.inventoryName }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="carpetArea">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Carpet Area</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.carpetArea }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="builtUpArea">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Built-up Area</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.builtUpArea }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="minPrice">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Min Price</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.minPrice }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="maxPrice">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Max Price</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.maxPrice }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="uploadFile">
+              <mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded File</mat-header-cell>
+              <mat-cell *matCellDef="let row">{{ row.uploadFile }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+              <mat-cell *matCellDef="let row">
+                <button mat-icon-button color="accent" (click)="editCall(row)" class="tbl-action-btn">
+                  <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
+                </button>
+                <button mat-icon-button color="accent" (click)="deleteItem(row)" class="tbl-action-btn">
+                  <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
+                </button>
+                <button mat-icon-button color="accent" (click)="viewImage(row)" class="tbl-action-btn">
+                  <app-feather-icons [icon]="'eye'" [class]="'tbl-fav-eye'"></app-feather-icons>
+                </button>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          </table>
+        </div>
+      </div>
+
+      <mat-paginator [length]="dataSource.filteredData.length" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="pageEvent($event)">
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>
   </div>
 </div>
