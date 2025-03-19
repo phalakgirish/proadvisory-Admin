@@ -208,9 +208,40 @@
                         </div>
                     </div>
 
+                    <div class="row m-b-8">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Minimum Price</mat-label>
+                                <input matInput formControlName="minPrice" required type="number">
+                                <mat-error *ngIf="propertyForm.get('minPrice')?.hasError('required')">
+                                    Minimum Price is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Maximum Price</mat-label>
+                                <input matInput formControlName="maxPrice" required type="number">
+                                <mat-error *ngIf="propertyForm.get('maxPrice')?.hasError('required')">
+                                    Maximum Price is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    
+
                     <!-- Description -->
                     <div class="row m-b-8">
-                        <div class="col-sm-12">
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                              <mat-label>Price per Sq Ft</mat-label>
+                              <input matInput formControlName="priceperSqrt" required type="number">
+                              <mat-error *ngIf="propertyForm.get('priceperSqrt')?.hasError('required')">
+                                Price per Sq Ft is required
+                              </mat-error>
+                            </mat-form-field>
+                          </div>
+                          <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Description</mat-label>
                                 <textarea matInput formControlName="description" required></textarea>
@@ -223,20 +254,14 @@
 
                     <!-- Images, price -->
                     <div class="row m-b-8">
+                        
                         <!-- Upload Images -->
                         <div class="col-sm-6">
                             <mat-label>Upload Property Images</mat-label>
                             <app-multiple-file-upload formControlName="uploadFile"></app-multiple-file-upload>
                         </div>
 
-                        <div class="col-sm-6">
-                            <label>Price</label>
-                            <mat-slider class="w-100 d-block" min="100000" max="10000000" step="50000"
-                                tickInterval="500000" (input)="updatePrice($event)">
-                                <input matSliderThumb [formControl]="priceControl">
-                            </mat-slider>
-                            <div class="text-muted">Selected Price: ₹{{ priceControl.value }}</div>
-                        </div>
+                        
                     </div>
 
                     <!-- Submit & Cancel Buttons -->
