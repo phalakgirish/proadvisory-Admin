@@ -36,7 +36,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>City</mat-label>
                                 <mat-select formControlName="city" required>
-                                    <mat-option *ngFor="let city of cities" [value]="city">{{ city }}</mat-option>
+                                    <mat-option *ngFor="let city of cityOptions" [value]="city.id">
+                                        {{ city.cname }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('city')?.hasError('required')">
                                     City is required
@@ -47,7 +48,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Area</mat-label>
                                 <mat-select formControlName="area" required>
-                                    <mat-option *ngFor="let area of areas" [value]="area">{{ area }}</mat-option>
+                                    <mat-option *ngFor="let area of areaOptions" [value]="area._id">{{ area.aname
+                                        }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('area')?.hasError('required')">
                                     Area is required
@@ -83,7 +85,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Property Type</mat-label>
                                 <mat-select formControlName="propertyType" required>
-                                    <mat-option *ngFor="let type of propertyTypes" [value]="type">{{ type }}</mat-option>
+                                    <mat-option *ngFor="let type of ptOptions" [value]="type._id">{{ type.ptname
+                                        }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('propertyType')?.hasError('required')">
                                     Property Type is required
@@ -94,7 +97,7 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Property SubType</mat-label>
                                 <mat-select formControlName="propertySubType" required>
-                                    <mat-option *ngFor="let type of propertySubTypes" [value]="type">{{ type
+                                    <mat-option *ngFor="let type of pstOptions" [value]="type._id">{{ type.pstname
                                         }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('propertySubType')?.hasError('required')">
@@ -143,7 +146,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Inventory</mat-label>
                                 <mat-select formControlName="inventory" required>
-                                    <mat-option *ngFor="let item of inventoryList" [value]="item">{{ item
+                                    <mat-option *ngFor="let item of inventoryOptions" [value]="item._id">{{
+                                        item.inventoryName
                                         }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('inventory')?.hasError('required')">
@@ -159,7 +163,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Amenities</mat-label>
                                 <mat-select formControlName="amenities" multiple>
-                                    <mat-option *ngFor="let amenity of amenitiesList" [value]="amenity">{{ amenity
+                                    <mat-option *ngFor="let amenity of amenitiesOptions" [value]="amenity">{{
+                                        amenity.amenityName
                                         }}</mat-option>
                                 </mat-select>
                             </mat-form-field>
@@ -174,14 +179,15 @@
                         </div>
                     </div>
 
-                    
+
                     <!-- Advisor Name -->
                     <div class="row m-b-8">
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Advisor Name</mat-label>
                                 <mat-select formControlName="advisorName" required>
-                                    <mat-option *ngFor="let advisor of advisorNames" [value]="advisor">{{ advisor }}</mat-option>
+                                    <mat-option *ngFor="let advisor of AdvisorOptions" [value]="advisor._id">{{
+                                        advisor.Name }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('advisorName')?.hasError('required')">
                                     Advisor Name is required
@@ -192,7 +198,8 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Property Status</mat-label>
                                 <mat-select formControlName="propertyStatus" required>
-                                    <mat-option *ngFor="let status of propertyStatuses" [value]="status">{{ status }}</mat-option>
+                                    <mat-option *ngFor="let status of propertyStatuses" [value]="status">{{ status
+                                        }}</mat-option>
                                 </mat-select>
                                 <mat-error *ngIf="propertyForm.get('propertyStatus')?.hasError('required')">
                                     Property Status is required
@@ -221,7 +228,7 @@
                             <mat-label>Upload Property Images</mat-label>
                             <app-multiple-file-upload formControlName="uploadFile"></app-multiple-file-upload>
                         </div>
-                        
+
                         <div class="col-sm-6">
                             <label>Price</label>
                             <mat-slider class="w-100 d-block" min="100000" max="10000000" step="50000"

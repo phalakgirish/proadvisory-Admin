@@ -1,5 +1,5 @@
 
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -24,10 +24,75 @@ import {
   MatSnackBarVerticalPosition,
 } from '@angular/material/snack-bar';
 import { FileUploadComponent } from '@shared/components/file-upload/file-upload.component';
-import { MatSliderModule } from '@angular/material/slider';
+import { MatSliderChange, MatSliderModule } from '@angular/material/slider';
 import { SliderComponent } from 'app/modules/material/slider/slider.component';
 import { CommonModule } from '@angular/common';
 import { MultipleFileUploadComponent } from '@shared/components/multiple-file-upload/multiple-file-upload.component';
+import { CurdService } from 'app/services/curd.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { City } from 'app/interfaces/city';
+
+interface Property {
+  _id:string;
+  propertyName: string;
+  reraNumber: string;
+  city: string;
+  area: string;
+  pincode: string;
+  propertySubType: string;
+  bedNo: number;
+  carpetArea: string;
+  floor: string;
+  inventory: string;
+  amenities: string;
+  possessionDate: any;
+  uploadFile: string;
+  price: number;
+  mapLink: string;
+  advisorName: string;
+  description: string;
+  propertyStatus: string;
+  propertyType: string;
+}
+
+interface Area {
+  areaId: string;
+  areaName: string;
+  cityName:any;
+}
+
+interface PropertyType {
+  ptId: string;
+  ptName: string;
+  status:any;
+}
+
+interface PropertySubType {
+  pstId: string;
+  ptName: string;
+  pstName:string;
+  status:any;
+}
+
+interface Amenity
+{
+  id:string;
+  amenityName:string;
+}
+
+interface Inventory
+{
+  id:string;
+  inventoryName:string;
+}
+
+interface Advisor
+{
+  id:string;
+  name:string;
+  MobileNo:string,
+  email:string
+}
 
 @Component({
   selector: 'app-add-property',
@@ -48,23 +113,34 @@ import { MultipleFileUploadComponent } from '@shared/components/multiple-file-up
   styleUrl: './add-property.component.scss'
 })
 
-export class AddPropertyComponent {
+export class AddPropertyComponent implements OnInit {
   propertyForm: FormGroup;
   priceControl: FormControl;
-  cities = ['City1', 'City2', 'City3']; // Example data for cities
-  areas = ['Area1', 'Area2', 'Area3']; // Example data for areas
-  propertySubTypes = ['Type1', 'Type2', 'Type3']; // Example data for property subtypes
-  bedNumbers = [1, 2, 3, 4, 5]; // Example data for bed numbers
-  inventoryList = ['Inventory1', 'Inventory2', 'Inventory3']; // Example data for inventory
-  amenitiesList = ['Amenity1', 'Amenity2', 'Amenity3']; // Example data for amenities
-  advisorNames = ['Advisor1', 'Advisor2', 'Advisor3']; // Example data for advisor names
-  propertyStatuses = ['Available', 'Sold', 'Under Construction']; // Example data for property statuses
-  propertyTypes = ['Residential', 'Commercial'];
+  bedNumbers = [1, 2, 3, 4, 5];
+  propertyStatuses = ['Available', 'Sold', 'Under Construction'];
+
+
+  Area:any;
+  cityOptions:any;
+  areaOptions:any;
+  ptOptions: any;
+  pstOptions:any;
+  amenitiesOptions:any;
+  inventoryOptions:any;
+  AdvisorOptions:any;
+
+  submitted = false;
+  success_msg = false;
+  success_msg_txt = '';
+  err_message = '';
+  dataSource = new MatTableDataSource<Property>(); // Initialize dataSource
+
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private curdService: CurdService
   ) {
     this.priceControl = new FormControl(100000, [
       Validators.required,
@@ -86,23 +162,25 @@ export class AddPropertyComponent {
       amenities: [''],
       possessionDate: ['', Validators.required],
       uploadFile: [''],
-      price: [this.priceControl],
-      mapLink: ['', Validators.required],  
-      advisorName: ['', Validators.required],  
-      description: ['', Validators.required],  
-      propertyStatus: ['', Validators.required],  
-      propertyType: ['', Validators.required]  
+      price: this.priceControl,
+      mapLink: ['', Validators.required],
+      advisorName: ['', Validators.required],
+      description: ['', Validators.required],
+      propertyStatus: ['', Validators.required],
+      propertyType: ['', Validators.required],
     });
   }
-  
+
   ngOnInit() {
-  console.log('Cities:', this.cities);
-  console.log('Areas:', this.areas);
-  console.log('Property SubTypes:', this.propertySubTypes);
-  console.log('Cities:', this.cities);
-
-}
-
+    this.getPropertyList(); // Load property list on initialization
+    this.fetchCities();
+    this.fetchAreas();
+    this.fetchPropertyTypes();
+    this.fetchPropertySubTypes();
+    this.fetchAmenities();
+    this.fetchInventory();
+    this.fetchAdvisor();
+  }
 
   updatePrice(event: any) {
     this.priceControl.setValue(event.target.value);
@@ -122,32 +200,149 @@ export class AddPropertyComponent {
     if (files.length) {
       this.propertyForm.patchValue({ images: Array.from(files) });
     }
+    console.log('Files selected:', files);
+
   }
 
-  onSubmit() {
-    if (this.propertyForm.valid) {
-      const formData = new FormData();
-      Object.entries(this.propertyForm.value).forEach(([key, value]) => {
-        if (key === 'images') {
-          (value as File[]).forEach((file, index) => {
-            formData.append(`images[${index}]`, file);
-          });
-        } else {
-          formData.append(key, value as string);
-        }
-      });
+  getPropertyList(): void {
+    this.curdService.getData<Property[]>('properties').subscribe({
+      next: (properties) => {
+        this.dataSource.data = properties;
+      },
+      error: () => {
+        this.showSnackBar('Failed to load properties.');
+      },
+    });
+  }
 
-      this.http.post('http://localhost:3000/properties', formData).subscribe(
-        () => {
-          this.showNotification('snackbar-success', 'Property Created Successfully!');
-          this.propertyForm.reset();
+  fetchCities():void{
+      this.curdService.getData<City[]>('city').subscribe({
+        next: (city) => {
+          this.cityOptions = city;
         },
-        (error: any) => {
-          console.error('Error submitting form:', error);
+        error: () => {
+          this.showSnackBar('Failed to load properties.');
         }
-      );
-    } else {
-      this.propertyForm.markAllAsTouched();
+      })
+    }
+
+    fetchAreas():void{
+      this.curdService.getData<Area[]>('areas').subscribe({
+        next: (area) => {
+          this.areaOptions = area;
+        },
+        error: () => {
+          this.showSnackBar('Failed to load areas.');
+        }
+      })
+    }
+
+    fetchPropertyTypes():void{
+      this.curdService.getData<PropertyType[]>('property-types').subscribe({
+        next: (pt) => {
+          this.ptOptions = pt;
+  
+        },
+        error: () => {
+          this.showSnackBar('Failed to load property type.');
+        }
+      })
+    }
+
+    fetchPropertySubTypes():void{
+      this.curdService.getData<PropertySubType[]>('property-subtypes').subscribe({
+        next: (pst) => {
+          this.pstOptions = pst;
+  
+        },
+        error: () => {
+          this.showSnackBar('Failed to load property subtype.');
+        }
+      })
+    }
+    fetchAmenities():void{
+      this.curdService.getData<Amenity[]>('amenities').subscribe({
+        next: (amenities) => {
+          this.amenitiesOptions = amenities;
+        },
+        error: () => {
+          this.showSnackBar('Failed to load property subtype.');
+        }
+      })
+    }
+
+    fetchInventory(): void {
+      this.curdService.getData<Inventory[]>('inventories').subscribe({
+        next: (inventories) => {
+          console.log(inventories);
+          this.inventoryOptions = inventories;
+        },
+        error: () => {
+          this.showSnackBar('Failed to load inventory.');
+        },
+      });
+    }
+  
+    fetchAdvisor(): void {
+      this.curdService.getData<Advisor[]>('staff').subscribe({
+        next: (staff) => {
+          console.log(staff);
+          this.AdvisorOptions = staff;
+        },
+        error: () => {
+          this.showSnackBar('Failed to load advisor.');
+        },
+      });
+    }
+  
+    onSubmit() {
+      console.log();
+      console.log('Form Submitted!');
+      this.submitted = true;
+  
+      if (this.propertyForm.invalid) {
+        console.log('Form is invalid:', this.propertyForm.errors);
+        return;
+      }
+  
+      this.curdService.postData('properties', this.propertyForm.value).subscribe({
+        next: (res: any) => {
+          if (res) {
+            console.log('API Success:', res);
+            this.success_msg = true;
+            this.submitted = false;
+            this.propertyForm.reset();
+            this.success_msg_txt = 'Property Added Successfully';
+            setTimeout(() => {
+              this.success_msg = false;
+              this.success_msg_txt = '';
+            }, 3000);
+            this.getPropertyList();
+          } else {
+            this.err_message = res.message || 'Unknown error occurred.';
+            setTimeout(() => {
+              this.err_message = '';
+            }, 3000);
+          }
+        },
+        error: (err) => {
+          console.error('API Error:', err);
+          this.err_message = err?.error?.message || 'Something went wrong. Please try again.';
+          setTimeout(() => {
+            this.err_message = '';
+          }, 3000);
+        },
+        complete: () => {
+          console.log('Request completed');
+        },
+      });
+    }
+  
+    showSnackBar(message: string) {
+      this.snackBar.open(message, 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
     }
   }
-}

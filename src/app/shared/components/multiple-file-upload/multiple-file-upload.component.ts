@@ -33,11 +33,13 @@ export class MultipleFileUploadComponent implements ControlValueAccessor {
   constructor(private host: ElementRef<HTMLInputElement>) {}
 
   onFileSelected(event: Event) {
+    event.preventDefault(); // ✅ Prevent form submission
     const input = event.target as HTMLInputElement;
     if (input.files) {
       this.updateFiles(Array.from(input.files), true); // Append files instead of replacing
     }
   }
+  
 
   onDrop(event: DragEvent) {
     event.preventDefault();
@@ -52,14 +54,23 @@ export class MultipleFileUploadComponent implements ControlValueAccessor {
 
   updateFiles(files: File[], append: boolean = false) {
     if (append) {
-      this.files = [...this.files, ...files]; // Append instead of replace
+      this.files = [...this.files, ...files]; // Append files if needed
     } else {
       this.files = files;
     }
     if (this.onChange) {
-      this.onChange(this.files);
+      this.onChange(this.files); // Notify parent component
     }
   }
+  
+  getFormData(): FormData {
+    const formData = new FormData();
+    this.files.forEach((file, index) => {
+      formData.append(`file`, file);
+    });
+    return formData;
+  }
+  
 
   writeValue(value: File[] | null) {
     this.files = value || [];
