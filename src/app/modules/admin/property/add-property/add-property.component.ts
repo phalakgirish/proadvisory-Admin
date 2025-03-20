@@ -40,8 +40,8 @@ interface Property {
   city: string;
   area: string;
   pincode: string;
-  propertySubType: string;
-  bedNo: number;
+  propertySubtype: string;
+  noOfBeds: number;
   carpetArea: string;
   floor: string;
   inventory: string;
@@ -51,11 +51,13 @@ interface Property {
   minPrice: number; 
   maxPrice: number; 
   pricePerSqFt: number; 
-  mapLink: string;
-  advisorName: string;
+  maplink: string;
+  advisor: string;
   description: string;
-  propertyStatus: string;
+  property_status: string;
   propertyType: string;
+  isnewlaunch: [false], 
+  isfeature: [false],
 }
 
 
@@ -159,8 +161,8 @@ export class AddPropertyComponent implements OnInit {
       city: ['', Validators.required],
       area: ['', Validators.required],
       pincode: ['', Validators.required],
-      propertySubType: ['', Validators.required],
-      bedNo: ['', Validators.required],
+      propertySubtype: ['', Validators.required],
+      noOfBeds: ['', Validators.required],
       carpetArea: ['', Validators.required],
       floor: ['', Validators.required],
       inventory: ['', Validators.required],
@@ -170,11 +172,13 @@ export class AddPropertyComponent implements OnInit {
       minPrice: ['', Validators.required],
       maxPrice: ['', Validators.required], 
       priceperSqrt: ['', Validators.required],
-      mapLink: ['', Validators.required],
-      advisorName: ['', Validators.required],
+      maplink: ['', Validators.required],
+      advisor: ['', Validators.required],
       description: ['', Validators.required],
-      propertyStatus: ['', Validators.required],
+      property_status: ['', Validators.required],
       propertyType: ['', Validators.required],
+      isnewlaunch: [false], 
+      isfeature: [false],
     });
     
   }

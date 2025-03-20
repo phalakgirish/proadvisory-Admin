@@ -99,13 +99,10 @@ export class PropertyInventoryComponent implements OnInit {
 
   dataSource = new MatTableDataSource<Inventory>([]);
   displayedColumns: string[] = [
-    'propertyName', // Updated to propertyName
-    'inventoryName',
+    'propertyName', // Updated to propertyName,
     'carpetArea',
-    'builtUpArea',
     'minPrice',
     'maxPrice',
-    'uploadFile',
     'actions',
   ];
   selection = new SelectionModel<Inventory>(true, []);
@@ -156,6 +153,7 @@ export class PropertyInventoryComponent implements OnInit {
       next: (properties) => {
         console.log(properties);
         this.propertyOptions = properties;
+        // this.dataSource=properties;
       },
       error: () => {
         this.showSnackBar('Failed to load inventory.');

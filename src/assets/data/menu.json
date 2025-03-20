@@ -44,11 +44,7 @@
           "name": "add-property",
           "type": "link"
         },
-        {
-          "route": "edit-property",
-          "name": "edit-property",
-          "type": "link"
-        },
+       
         {
           "route": "property-inventory",
           "name": "property-inventory",
