@@ -44,9 +44,10 @@
           "name": "add-property",
           "type": "link"
         },
+       
         {
-          "route": "edit-property",
-          "name": "edit-property",
+          "route": "property-inventory",
+          "name": "property-inventory",
           "type": "link"
         }
        
@@ -84,11 +85,6 @@
         {
           "route": "inventory",
           "name": "inventory",
-          "type": "link"
-        },
-        {
-          "route": "property-inventory",
-          "name": "property-inventory",
           "type": "link"
         },
         {

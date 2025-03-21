@@ -73,10 +73,6 @@ export const MASTER_ROUTE: Route[] = [
     component: EditPropertySubtypeComponent,
   },
   {
-    path: 'property-inventory',
-    component: PropertyInventoryComponent,
-  },
-  {
     path: 'edit-property-inventory',
     component: EditPropertyInventoryComponent,
   },

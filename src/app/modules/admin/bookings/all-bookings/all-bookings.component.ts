@@ -76,15 +76,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class AllBookingsComponent implements OnInit, OnDestroy {
   columnDefinitions = [
     { def: 'select', label: 'Checkbox', type: 'check', visible: true },
-    { def: 'fName', label: 'Name', type: 'text', visible: true },
+    { def: 'fName', label: 'Property', type: 'text', visible: true },
    
-    { def: 'roomType', label: 'Service', type: 'text', visible: true },
+    // { def: 'roomType', label: '', type: 'text', visible: true },
     { def: 'status', label: 'Status', type: 'text', visible: true },
-    { def: 'checkIn', label: 'Schedule Date', type: 'date', visible: true },
-    { def: 'checkOut', label: 'Schedule TIme', type: 'date', visible: true },
-    { def: 'payment', label: 'Payment', type: 'text', visible: true },
-    { def: 'email', label: 'Email', type: 'email', visible: false },
-    { def: 'mobile', label: 'Mobile', type: 'phone', visible: true },
+    { def: 'checkIn', label: 'Enquiry Date', type: 'date', visible: true },
+    { def: 'checkOut', label: 'Enquiry TIme', type: 'date', visible: true },
+    // { def: 'payment', label: 'Payment', type: 'text', visible: true },
+    // { def: 'email', label: 'Email', type: 'email', visible: false },
+    { def: 'mobile', label: 'Mobile No', type: 'phone', visible: true },
     { def: 'actions', label: 'Actions', type: 'actionBtn', visible: true },
   ];
 

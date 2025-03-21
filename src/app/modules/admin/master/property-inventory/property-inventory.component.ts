@@ -26,6 +26,34 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FeatherComponent } from 'angular-feather';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
+import { CurdService } from 'app/services/curd.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { InventoryDetailDialogComponent } from '../../property/inventory-detail-dialog/inventory-detail-dialog.component';
+
+interface Property {
+  _id: string;
+  propertyName: string;
+  reraNumber: string;
+  city: string;
+  area: string;
+  pincode: string;
+  propertySubType: string;
+  bedNo: number;
+  carpetArea: string;
+  floor: string;
+  inventory: string;
+  amenities: string;
+  possessionDate: any;
+  uploadFile: string;
+  minPrice: number; 
+  maxPrice: number; 
+  pricePerSqFt: number; 
+  mapLink: string;
+  advisorName: string;
+  description: string;
+  propertyStatus: string;
+  propertyType: string;
+}
 
 
 interface Inventory {
@@ -34,7 +62,10 @@ interface Inventory {
   minPrice: number;
   maxPrice: number;
   uploadFile: string;
+  builtUpArea:string;
   inventoryName: string;
+  id?: number; 
+  propertyName : string;
 }
 
 @Component({
@@ -59,65 +90,94 @@ interface Inventory {
     MatCheckboxModule,
     FeatherIconsComponent,
 
+
   ],
   templateUrl: './property-inventory.component.html',
   styleUrl: './property-inventory.component.scss'
 })
 export class PropertyInventoryComponent implements OnInit {
-  removeSelectedRows() {
-    throw new Error('Method not implemented.');
-  }
+
   inventoryForm: FormGroup;
-  propertyName = ['Sai ', 'Sai Niwas'];
-  inventoryTypes = ['Residential', 'Commercial', 'Industrial'];
-  dataSource = new MatTableDataSource<Inventory>([
-    {
-      propertyArea: 'Sai',
-      carpetArea: 1000,
-      minPrice: 1500000,
-      maxPrice: 2500000,
-      uploadFile: 'https://via.placeholder.com/150',
-      inventoryName: 'Residential',
-    },
-    {
-      propertyArea: 'Sai Niwas',
-      carpetArea: 1500,
-      minPrice: 2000000,
-      maxPrice: 3000000,
-      uploadFile: 'https://via.placeholder.com/200',
-      inventoryName: 'Commercial',
-    },
-  ]);
-  displayedColumns: string[] = ['propertyArea', 'inventoryName', 'carpetArea', 'minPrice', 'maxPrice', 'uploadFile', 'actions'];
+
+  dataSource = new MatTableDataSource<Inventory>([]);
+  displayedColumns: string[] = [
+    'propertyName', // Updated to propertyName,
+    'carpetArea',
+    'minPrice',
+    'maxPrice',
+    'actions',
+  ];
   selection = new SelectionModel<Inventory>(true, []);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  inventoryOptions: any;
+  propertyOptions:any;
 
-  constructor(private fb: FormBuilder, private dialog: MatDialog) {
+  constructor(private fb: FormBuilder, private dialog: MatDialog, private curdService: CurdService
+    ,private snackBar: MatSnackBar,
+  ) {
     this.inventoryForm = this.fb.group({
-      propertyArea: ['', Validators.required],
-      carpetArea: ['', [Validators.min(1)]],
-      minPrice: ['', [Validators.min(1000)]],
-      maxPrice: ['', [Validators.min(1000)]],
-      uploadFile: [''],
-      inventoryName: ['', Validators.required],
+      propertyName: ['', Validators.required],
+      inventory: ['', Validators.required],
+      carpetArea: [null, [Validators.min(1)]],
+      builtUpArea: [null, [Validators.min(1)]],
+      minPrice: [null, [Validators.min(1000)]],
+      maxPrice: [null, [Validators.min(1000)]],
+      uploadFile: [null]
     });
+    
   }
 
   ngOnInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    console.log('Data Source:', this.dataSource.data);
-    console.log('Property Names:', this.propertyName);
-    console.log('Inventory Types:', this.inventoryTypes);
+    this.fetchProperty();
+    this.fetchInventory(); // Fetch existing inventories
+  }
+
+ 
+
+  fetchInventory(): void {
+    this.curdService.getData<Inventory[]>('inventories').subscribe({
+      next: (inventories) => {
+        console.log(inventories);
+        this.inventoryOptions = inventories;
+      },
+      error: () => {
+        this.showSnackBar('Failed to load inventory.');
+      },
+    });
+  }
+
+  fetchProperty(): void {
+    this.curdService.getData<Property[]>('properties').subscribe({
+      next: (properties) => {
+        console.log(properties);
+        this.propertyOptions = properties;
+        // this.dataSource=properties;
+      },
+      error: () => {
+        this.showSnackBar('Failed to load inventory.');
+      },
+    });
   }
 
   onSubmit(): void {
     if (this.inventoryForm.valid) {
       const newInventory: Inventory = this.inventoryForm.value;
-      this.dataSource.data = [...this.dataSource.data, newInventory];
-      this.inventoryForm.reset();
+      console.log('Submitted Form Data:', newInventory);
+      this.curdService.postData<Inventory>('property-inventory', newInventory).subscribe( // Updated URL
+        (response) => {
+          this.dataSource.data = [...this.dataSource.data, response];
+          this.inventoryForm.reset();
+          this.fetchInventory();
+        },
+        (error) => {
+          console.error('Error creating inventory:', error);
+          this.showSnackBar('Failed to create inventory.');
+        }
+      );
     }
   }
 
@@ -126,16 +186,19 @@ export class PropertyInventoryComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  addNew(): void {
-    // Implement your add new logic here if needed
-  }
-
-  refresh(): void {
-    // Implement your refresh logic here if needed
-  }
-
-  exportExcel(): void {
-
+  deleteItem(row: Inventory): void {
+    const index = this.dataSource.data.indexOf(row);
+    if (index >= 0) {
+      this.curdService.deleteData(`inventory/${row.id}`).subscribe(
+        () => {
+          this.dataSource.data.splice(index, 1);
+          this.dataSource.data = [...this.dataSource.data];
+        },
+        error => {
+          console.error('Error deleting inventory:', error);
+        }
+      );
+    }
   }
 
   editCall(row: Inventory): void {
@@ -145,19 +208,21 @@ export class PropertyInventoryComponent implements OnInit {
       this.dataSource.data.splice(index, 1);
       this.dataSource.data = [...this.dataSource.data];
     }
-  }
 
-  deleteItem(row: Inventory): void {
-    const index = this.dataSource.data.indexOf(row);
-    if (index >= 0) {
-      this.dataSource.data.splice(index, 1);
-      this.dataSource.data = [...this.dataSource.data];
-    }
+    // To send update to the API
+    this.curdService.updateData<Inventory>(`inventory/${row.id}`, this.inventoryForm.value).subscribe(
+      response => {
+        // Handle the response as needed
+      },
+      error => {
+        console.error('Error updating inventory:', error);
+      }
+    );
   }
 
   viewImage(row: Inventory): void {
     if (row.uploadFile) {
-      const dialogRef = this.dialog.open(ImagePreviewDialogComponent, {
+      this.dialog.open(ImagePreviewDialogComponent, {
         data: { imageUrl: row.uploadFile }
       });
     }
@@ -181,4 +246,45 @@ export class PropertyInventoryComponent implements OnInit {
   pageEvent(event: PageEvent): void {
     // You can handle page events here if needed
   }
+
+  removeSelectedRows() {
+    throw new Error('Method not implemented.');
+    }
+    addNew() {
+    throw new Error('Method not implemented.');
+    }
+    refresh() {
+    throw new Error('Method not implemented.');
+    }
+
+    showSnackBar(message: string) {
+      this.snackBar.open(message, 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+      });
+    }
+
+    viewInventory(row: Inventory): void {
+      this.curdService.getData<Inventory[]>('inventories').subscribe({
+        next: (allInventories) => {
+          console.log("All inventories fetched:", allInventories); // Log all fetched inventories
+          const relatedInventories = allInventories.filter(
+            (inventory) => inventory.propertyName === row.propertyName
+          );
+          console.log("Related inventories:", relatedInventories); // Log filtered inventories
+          this.dialog.open(InventoryDetailDialogComponent, {
+            width: '600px',
+            data: {
+              propertyName: row.propertyName,
+              inventories: relatedInventories,
+            },
+          });
+        },
+        error: (error) => {
+          console.error('Error fetching inventories:', error);
+          this.showSnackBar('Failed to load related inventories.');
+        },
+      });
+    }
 }

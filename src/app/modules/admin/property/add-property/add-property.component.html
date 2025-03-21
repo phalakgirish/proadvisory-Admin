@@ -72,8 +72,8 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Maplink</mat-label>
-                                <input matInput formControlName="mapLink" required>
-                                <mat-error *ngIf="propertyForm.get('mapLink')?.hasError('required')">
+                                <input matInput formControlName="maplink" required>
+                                <mat-error *ngIf="propertyForm.get('maplink')?.hasError('required')">
                                     Maplink is required
                                 </mat-error>
                             </mat-form-field>
@@ -96,11 +96,11 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Property SubType</mat-label>
-                                <mat-select formControlName="propertySubType" required>
+                                <mat-select formControlName="propertySubtype" required>
                                     <mat-option *ngFor="let type of pstOptions" [value]="type._id">{{ type.pstname
                                         }}</mat-option>
                                 </mat-select>
-                                <mat-error *ngIf="propertyForm.get('propertySubType')?.hasError('required')">
+                                <mat-error *ngIf="propertyForm.get('propertySubtype')?.hasError('required')">
                                     Property SubType is required
                                 </mat-error>
                             </mat-form-field>
@@ -112,20 +112,43 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Number of Beds</mat-label>
-                                <mat-select formControlName="bedNo" required>
+                                <mat-select formControlName="noOfBeds" required>
                                     <mat-option *ngFor="let bed of bedNumbers" [value]="bed">{{ bed }}</mat-option>
                                 </mat-select>
-                                <mat-error *ngIf="propertyForm.get('bedNo')?.hasError('required')">
+                                <mat-error *ngIf="propertyForm.get('noOfBeds')?.hasError('required')">
                                     Bed number is required
                                 </mat-error>
                             </mat-form-field>
                         </div>
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Number of Baths</mat-label>
+                                <mat-select formControlName="noOfBaths" required>
+                                    <mat-option *ngFor="let bath of bathNumbers" [value]="bath">{{ bath }}</mat-option>
+                                </mat-select>
+                                <mat-error *ngIf="propertyForm.get('noOfBaths')?.hasError('required')">
+                                    Bed number is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row m-b-8">
+                        
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Carpet Area (sq ft)</mat-label>
                                 <input matInput formControlName="carpetArea" required type="number">
                                 <mat-error *ngIf="propertyForm.get('carpetArea')?.hasError('required')">
                                     Carpet Area is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="example-full-width" appearance="outline">
+                                <mat-label>Parking</mat-label>
+                                <input matInput formControlName="parking" required>
+                                <mat-error *ngIf="propertyForm.get('parking')?.hasError('required')">
+                                  Add Parking Details eg[One open parking]
                                 </mat-error>
                             </mat-form-field>
                         </div>
@@ -163,7 +186,7 @@
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Amenities</mat-label>
                                 <mat-select formControlName="amenities" multiple>
-                                    <mat-option *ngFor="let amenity of amenitiesOptions" [value]="amenity">{{
+                                    <mat-option *ngFor="let amenity of amenitiesOptions" [value]="amenity._id">{{
                                         amenity.amenityName
                                         }}</mat-option>
                                 </mat-select>
@@ -185,11 +208,11 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Advisor Name</mat-label>
-                                <mat-select formControlName="advisorName" required>
+                                <mat-select formControlName="advisor" required>
                                     <mat-option *ngFor="let advisor of AdvisorOptions" [value]="advisor._id">{{
                                         advisor.Name }}</mat-option>
                                 </mat-select>
-                                <mat-error *ngIf="propertyForm.get('advisorName')?.hasError('required')">
+                                <mat-error *ngIf="propertyForm.get('advisor')?.hasError('required')">
                                     Advisor Name is required
                                 </mat-error>
                             </mat-form-field>
@@ -197,11 +220,11 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Property Status</mat-label>
-                                <mat-select formControlName="propertyStatus" required>
+                                <mat-select formControlName="property_status" required>
                                     <mat-option *ngFor="let status of propertyStatuses" [value]="status">{{ status
                                         }}</mat-option>
                                 </mat-select>
-                                <mat-error *ngIf="propertyForm.get('propertyStatus')?.hasError('required')">
+                                <mat-error *ngIf="propertyForm.get('property_status')?.hasError('required')">
                                     Property Status is required
                                 </mat-error>
                             </mat-form-field>
@@ -228,20 +251,20 @@
                             </mat-form-field>
                         </div>
                     </div>
-                    
+
 
                     <!-- Description -->
                     <div class="row m-b-8">
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
-                              <mat-label>Price per Sq Ft</mat-label>
-                              <input matInput formControlName="priceperSqrt" required type="number">
-                              <mat-error *ngIf="propertyForm.get('priceperSqrt')?.hasError('required')">
-                                Price per Sq Ft is required
-                              </mat-error>
+                                <mat-label>Price per Sq Ft</mat-label>
+                                <input matInput formControlName="priceperSqrt" required type="number">
+                                <mat-error *ngIf="propertyForm.get('priceperSqrt')?.hasError('required')">
+                                    Price per Sq Ft is required
+                                </mat-error>
                             </mat-form-field>
-                          </div>
-                          <div class="col-sm-6">
+                        </div>
+                        <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline">
                                 <mat-label>Description</mat-label>
                                 <textarea matInput formControlName="description" required></textarea>
@@ -252,17 +275,30 @@
                         </div>
                     </div>
 
-                    <!-- Images, price -->
                     <div class="row m-b-8">
-                        
-                        <!-- Upload Images -->
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <mat-checkbox formControlName="isnewlaunch">Is New Launch</mat-checkbox><br>
+                                    <mat-checkbox formControlName="isunderConstruction">Under Construction</mat-checkbox><br>
+                                    <mat-checkbox formControlName="isforsale">Is For Sale</mat-checkbox>
+                                </div>
+                                <div class="col-sm-6">
+                                    <mat-checkbox formControlName="isfeature">Is Featured</mat-checkbox><br>
+                                    <mat-checkbox formControlName="isverified">Is Verified</mat-checkbox><br>
+                                    <mat-checkbox formControlName="isbalcony">Balcony</mat-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    
                         <div class="col-sm-6">
                             <mat-label>Upload Property Images</mat-label>
                             <app-multiple-file-upload formControlName="uploadFile"></app-multiple-file-upload>
                         </div>
-
-                        
                     </div>
+                    
+
+                    
 
                     <!-- Submit & Cancel Buttons -->
                     <div class="row m-b-8">
