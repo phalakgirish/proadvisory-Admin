@@ -4,6 +4,7 @@ import { AddPropertyComponent } from './add-property/add-property.component';
 import { ViewPropertyComponent } from './view-property/view-property.component';
 import { EditPropertyComponent } from './edit-property/edit-property.component';
 import { PropertyInventoryComponent } from '../master/property-inventory/property-inventory.component';
+import { InventoryDetailDialogComponent } from './inventory-detail-dialog/inventory-detail-dialog.component';
 
 export const PROPERTY_ROUTE: Route[] = [
   {
@@ -26,6 +27,10 @@ export const PROPERTY_ROUTE: Route[] = [
 {
   path: 'property-inventory',
   component: PropertyInventoryComponent,
+},
+{
+  path: 'inventory-detail-dialog',
+  component: InventoryDetailDialogComponent,
 },
 
   

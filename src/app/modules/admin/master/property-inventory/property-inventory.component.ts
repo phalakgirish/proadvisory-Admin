@@ -28,6 +28,7 @@ import { FeatherComponent } from 'angular-feather';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { CurdService } from 'app/services/curd.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { InventoryDetailDialogComponent } from '../../property/inventory-detail-dialog/inventory-detail-dialog.component';
 
 interface Property {
   _id: string;
@@ -64,6 +65,7 @@ interface Inventory {
   builtUpArea:string;
   inventoryName: string;
   id?: number; 
+  propertyName : string;
 }
 
 @Component({
@@ -260,6 +262,29 @@ export class PropertyInventoryComponent implements OnInit {
         duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
+      });
+    }
+
+    viewInventory(row: Inventory): void {
+      this.curdService.getData<Inventory[]>('inventories').subscribe({
+        next: (allInventories) => {
+          console.log("All inventories fetched:", allInventories); // Log all fetched inventories
+          const relatedInventories = allInventories.filter(
+            (inventory) => inventory.propertyName === row.propertyName
+          );
+          console.log("Related inventories:", relatedInventories); // Log filtered inventories
+          this.dialog.open(InventoryDetailDialogComponent, {
+            width: '600px',
+            data: {
+              propertyName: row.propertyName,
+              inventories: relatedInventories,
+            },
+          });
+        },
+        error: (error) => {
+          console.error('Error fetching inventories:', error);
+          this.showSnackBar('Failed to load related inventories.');
+        },
       });
     }
 }

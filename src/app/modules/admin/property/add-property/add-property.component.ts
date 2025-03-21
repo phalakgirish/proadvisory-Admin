@@ -42,7 +42,9 @@ interface Property {
   pincode: string;
   propertySubtype: string;
   noOfBeds: number;
+  noOfBaths:number;
   carpetArea: string;
+  parking:string;
   floor: string;
   inventory: string;
   amenities: string;
@@ -56,8 +58,10 @@ interface Property {
   description: string;
   property_status: string;
   propertyType: string;
-  isnewlaunch: [false], 
-  isfeature: [false],
+  isnewlaunch: boolean;
+isfeature: boolean;
+isunderConstruction: boolean;
+
 }
 
 
@@ -123,7 +127,8 @@ export class AddPropertyComponent implements OnInit {
   propertyForm: FormGroup;
   priceControl: FormControl;
   bedNumbers = [1, 2, 3, 4, 5];
-  propertyStatuses = ['Available', 'Sold', 'Under Construction'];
+  bathNumbers = [1, 2, 3, 4, 5];
+  propertyStatuses = ['Active', 'Inactive'];
 
 
   Area:any;
@@ -163,7 +168,9 @@ export class AddPropertyComponent implements OnInit {
       pincode: ['', Validators.required],
       propertySubtype: ['', Validators.required],
       noOfBeds: ['', Validators.required],
+      noOfBaths:['', Validators.required],
       carpetArea: ['', Validators.required],
+      parking: ['', Validators.required],
       floor: ['', Validators.required],
       inventory: ['', Validators.required],
       amenities: [''],
@@ -179,6 +186,11 @@ export class AddPropertyComponent implements OnInit {
       propertyType: ['', Validators.required],
       isnewlaunch: [false], 
       isfeature: [false],
+      isverified: [false],
+      isforsale: [false],
+      isbalcony: [false],
+      isunderConstruction:[false],
+      
     });
     
   }

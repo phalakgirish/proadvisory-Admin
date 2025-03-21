@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Inventory Details for {{ data.propertyName }}</h2>
+<mat-dialog-content>
+  <div *ngFor="let inventory of data.inventories">
+    <p><strong>Inventory Name:</strong> {{ inventory.inventoryName }}</p>
+    <p><strong>Carpet Area:</strong> {{ inventory.carpetArea }}</p>
+    <p><strong>Built-up Area:</strong> {{ inventory.builtUpArea }}</p>
+    <p><strong>Min Price:</strong> {{ inventory.minPrice }}</p>
+    <p><strong>Max Price:</strong> {{ inventory.maxPrice }}</p>
+    <hr>
+  </div>
+  <div *ngIf="data.inventories.length === 0">
+    <p>No inventory details available.</p>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Close</button>
+</mat-dialog-actions>
