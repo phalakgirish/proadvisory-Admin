@@ -55,16 +55,26 @@ interface Property {
   propertyType: string;
 }
 
+interface PropertyInventory {
+  _id?: string; 
+  property?: string; 
+  inventory?: string; 
+  buildUpArea?: number; 
+  carpetArea?: number; 
+  minPrice: number; 
+  maxPrice: number; 
+  floorPlan?: string; 
+}
+
 
 interface Inventory {
-  propertyArea: string;
   carpetArea: number;
   minPrice: number;
   maxPrice: number;
   uploadFile: string;
   builtUpArea:string;
   inventoryName: string;
-  id?: number; 
+  _id?: string; 
   propertyName : string;
 }
 
@@ -97,22 +107,30 @@ interface Inventory {
 })
 export class PropertyInventoryComponent implements OnInit {
 
+
   inventoryForm: FormGroup;
 
   dataSource = new MatTableDataSource<Inventory>([]);
   displayedColumns: string[] = [
     'propertyName', // Updated to propertyName,
+    'inventoryName',
     'carpetArea',
+    'buildUpArea',
     'minPrice',
     'maxPrice',
+    'floorPlan',
     'actions',
   ];
   selection = new SelectionModel<Inventory>(true, []);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
+@ViewChild(MatSort) sort!: MatSort;
+
+
+
   inventoryOptions: any;
   propertyOptions:any;
+  propertyInventoryOptions:any;
 
   constructor(private fb: FormBuilder, private dialog: MatDialog, private curdService: CurdService
     ,private snackBar: MatSnackBar,
@@ -130,13 +148,18 @@ export class PropertyInventoryComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+
     this.fetchProperty();
     this.fetchInventory(); // Fetch existing inventories
+    this.fetchInventories();
   }
 
- 
+  ngAfterViewInit(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
+  
+  
 
   fetchInventory(): void {
     this.curdService.getData<Inventory[]>('inventories').subscribe({
@@ -163,15 +186,94 @@ export class PropertyInventoryComponent implements OnInit {
     });
   }
 
+  fetchInventories(): void {
+    this.curdService.getData<PropertyInventory[]>('property-inventory').subscribe({
+      next: (propertyinventories) => {
+        console.log('Fetched Property Inventories:', propertyinventories);
+        
+        // Fetch property and inventory names before mapping
+        this.curdService.getData<Property[]>('properties').subscribe({
+          next: (properties) => {
+            this.curdService.getData<Inventory[]>('inventories').subscribe({
+              next: (inventories) => {
+                // Map property and inventory names to their corresponding IDs
+                this.propertyOptions = properties;
+                this.inventoryOptions = inventories;
+  
+                this.propertyInventoryOptions = propertyinventories.map((pi) => ({
+                  ...pi,
+                  propertyName: this.getPropertyNameById(pi.property),
+                  inventoryName: this.getInventoryNameById(pi.inventory),
+                }));
+  
+                // Assign updated data to dataSource
+                this.dataSource = new MatTableDataSource(this.propertyInventoryOptions);
+  
+                // Apply paginator and sort
+                setTimeout(() => {
+                  this.dataSource.paginator = this.paginator;
+                  this.dataSource.sort = this.sort;
+                });
+              },
+              error: (err) => {
+                console.error('Error fetching inventories:', err);
+                this.showSnackBar('Failed to load inventory data.');
+              },
+            });
+          },
+          error: (err) => {
+            console.error('Error fetching properties:', err);
+            this.showSnackBar('Failed to load property data.');
+          },
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching Property inventories:', err);
+        this.showSnackBar('Failed to load Property inventories.');
+      },
+    });
+  }
+  
+  
+  getPropertyNameById(propertyId: string | undefined): string {
+    const property = this.propertyOptions?.find((p: Property) => p._id === (propertyId as string));
+    return property ? property.propertyName : '-';
+  }
+  
+  
+  
+  getInventoryNameById(inventoryId?: string): string {
+    if (!inventoryId) {
+      return '-'; // Fallback if inventoryId is undefined
+    }
+    const inventory = this.inventoryOptions?.find((inv: Inventory) => inv._id === inventoryId);
+    return inventory ? inventory.inventoryName : '-';
+  }
+  
+  
+  
   onSubmit(): void {
     if (this.inventoryForm.valid) {
-      const newInventory: Inventory = this.inventoryForm.value;
+      const formData = this.inventoryForm.value;
+  
+      const newInventory: PropertyInventory = {
+        property: formData.propertyName, // Send ID, not name
+        inventory: formData.inventory, // Send ID, not name
+        carpetArea: formData.carpetArea,
+        buildUpArea: formData.builtUpArea,
+        minPrice: formData.minPrice,
+        maxPrice: formData.maxPrice,
+        floorPlan: formData.uploadFile,
+      };
+  
       console.log('Submitted Form Data:', newInventory);
-      this.curdService.postData<Inventory>('property-inventory', newInventory).subscribe( // Updated URL
+  
+      this.curdService.postData<PropertyInventory>('property-inventory', newInventory).subscribe(
         (response) => {
           this.dataSource.data = [...this.dataSource.data, response];
           this.inventoryForm.reset();
-          this.fetchInventory();
+          this.fetchInventories(); // Reload data after submission
+          this.showSnackBar('Inventory added successfully!');
         },
         (error) => {
           console.error('Error creating inventory:', error);
@@ -180,26 +282,65 @@ export class PropertyInventoryComponent implements OnInit {
       );
     }
   }
+  
 
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+  applyPagination(): void {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
-
-  deleteItem(row: Inventory): void {
-    const index = this.dataSource.data.indexOf(row);
-    if (index >= 0) {
-      this.curdService.deleteData(`inventory/${row.id}`).subscribe(
-        () => {
-          this.dataSource.data.splice(index, 1);
-          this.dataSource.data = [...this.dataSource.data];
-        },
-        error => {
-          console.error('Error deleting inventory:', error);
-        }
+  
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.dataSource.filter = filterValue;
+    
+    // Ensure nested object properties like propertyName and inventoryName are included in the filter
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const propertyName = data.property?.propertyName ? data.property.propertyName.toLowerCase() : '';
+      const inventoryName = data.inventory?.inventoryName ? data.inventory.inventoryName.toLowerCase() : '';
+      const carpetArea = data.carpetArea ? data.carpetArea.toString() : '';
+      const buildUpArea = data.buildUpArea ? data.buildUpArea.toString() : '';
+      const minPrice = data.minPrice ? data.minPrice.toString() : '';
+      const maxPrice = data.maxPrice ? data.maxPrice.toString() : '';
+  
+      return (
+        propertyName.includes(filter) ||
+        inventoryName.includes(filter) ||
+        carpetArea.includes(filter) ||
+        buildUpArea.includes(filter) ||
+        minPrice.includes(filter) ||
+        maxPrice.includes(filter)
       );
+    };
+  
+    this.dataSource.paginator?.firstPage(); // Reset to first page after filtering
+  }
+  
+  
+
+  delete(row: any): void {
+    const inventoryName =
+      typeof row.inventory === 'string'
+        ? 'Unknown Inventory'
+        : row.inventory?.inventoryName || 'Unknown Inventory';
+  
+    if (confirm(`Are you sure you want to delete inventory for ${inventoryName}?`)) {
+      this.curdService.deleteData(`property-inventory/${row._id}`).subscribe({
+        next: () => {
+          this.dataSource.data = this.dataSource.data.filter(
+            (item) => item._id !== row._id
+          );
+          this.showSnackBar('Inventory deleted successfully!');
+        },
+        error: (err) => {
+          console.error('Error deleting inventory:', err);
+          this.showSnackBar('Failed to delete inventory.');
+        },
+      });
     }
   }
+  
+
+  
 
   editCall(row: Inventory): void {
     const index = this.dataSource.data.indexOf(row);
@@ -210,7 +351,7 @@ export class PropertyInventoryComponent implements OnInit {
     }
 
     // To send update to the API
-    this.curdService.updateData<Inventory>(`inventory/${row.id}`, this.inventoryForm.value).subscribe(
+    this.curdService.updateData<Inventory>(`inventory/${row._id}`, this.inventoryForm.value).subscribe(
       response => {
         // Handle the response as needed
       },
@@ -220,13 +361,22 @@ export class PropertyInventoryComponent implements OnInit {
     );
   }
 
-  viewImage(row: Inventory): void {
-    if (row.uploadFile) {
+  // viewImage(row: PropertyInventory): void {
+  //   if (row.floorPlan) {
+  //     this.dialog.open(ImagePreviewDialogComponent, {
+  //       data: { imageUrl: row.floorPlan }
+  //     });
+  //   }
+  // }
+
+  viewImage(row: PropertyInventory): void {
+    if (row.floorPlan) {
       this.dialog.open(ImagePreviewDialogComponent, {
-        data: { imageUrl: row.uploadFile }
+        data: { imageUrl: row.floorPlan }
       });
     }
   }
+  
 
   isAllSelected(): boolean {
     const numSelected = this.selection.selected.length;
@@ -244,19 +394,11 @@ export class PropertyInventoryComponent implements OnInit {
   }
 
   pageEvent(event: PageEvent): void {
-    // You can handle page events here if needed
+    this.dataSource.paginator!.pageIndex = event.pageIndex;
+    this.dataSource.paginator!.pageSize = event.pageSize;
+    this.dataSource._updateChangeSubscription();
   }
-
-  removeSelectedRows() {
-    throw new Error('Method not implemented.');
-    }
-    addNew() {
-    throw new Error('Method not implemented.');
-    }
-    refresh() {
-    throw new Error('Method not implemented.');
-    }
-
+  
     showSnackBar(message: string) {
       this.snackBar.open(message, 'Close', {
         duration: 3000,
@@ -287,4 +429,8 @@ export class PropertyInventoryComponent implements OnInit {
         },
       });
     }
+
+      refresh() {
+      throw new Error('Method not implemented.');
+      }
 }
