@@ -34,8 +34,9 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <button class="m-l-8 m-r-8" [disabled]="!propertyForm.valid" mat-flat-button color="primary">
-                                Submit
-                            </button>
+                                {{ selectedRowId ? 'Update' : 'Submit' }}
+                              </button>
+                              
                             <button type="button" mat-flat-button color="warn">Cancel</button>
                         </div>
                     </div>
@@ -58,19 +59,14 @@
                             </div>
                             <div class="col-sm-4">
                                 <div class="right-side-btn">
-                                    <button mat-icon-button [hidden]="!selection.hasValue()" (click)="removeSelectedRows()"
-                                        class="tbl-header-btn text-red" matTooltip="Delete">
-                                        <mat-icon>delete_outline</mat-icon>
-                                    </button>
+                                   
                                     <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
                                         <mat-icon>add_circle_outline</mat-icon>
                                     </button>
                                     <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey" matTooltip="Refresh">
                                         <mat-icon>refresh</mat-icon>
                                     </button>
-                                    <button mat-icon-button (click)="exportExcel()" class="tbl-header-btn text-blue" matTooltip="Xlsx Download">
-                                        <mat-icon class="material-icons-outlined">file_download</mat-icon>
-                                    </button>
+
                                 </div>
                             </div>
                         </div>
@@ -79,20 +75,6 @@
                     <div class="overflow-auto">
                         <div class="responsive_table">
                             <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
-                                <ng-container matColumnDef="select">
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                    <mat-cell *matCellDef="let row">
-                                        <mat-checkbox (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
-                                </ng-container>
 
                                 <ng-container matColumnDef="ptname">
                                     <mat-header-cell *matHeaderCellDef mat-sort-header>Property Type Name</mat-header-cell>
@@ -110,7 +92,7 @@
                                       <button mat-icon-button color="accent" (click)="editCall(row)" class="tbl-action-btn">
                                         <app-feather-icons [icon]="'edit'" [class]="'tbl-fav-edit'"></app-feather-icons>
                                       </button>
-                                      <button mat-icon-button color="accent" (click)="deleteItem(row)" class="tbl-action-btn">
+                                      <button mat-icon-button color="accent" (click)="delete(row)" class="tbl-action-btn">
                                         <app-feather-icons [icon]="'trash-2'" [class]="'tbl-fav-delete'"></app-feather-icons>
                                       </button>
                                     </mat-cell>

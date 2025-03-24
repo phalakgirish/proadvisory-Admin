@@ -14,15 +14,9 @@ import {
   MatSnackBarHorizontalPosition,
   MatSnackBarVerticalPosition,
 } from '@angular/material/snack-bar';
-
-import {
-  MAT_DATE_LOCALE,
-  MatOptionModule,
-  MatRippleModule,
-} from '@angular/material/core';
-import { MatMenuTrigger, MatMenuModule } from '@angular/material/menu';
+import { MatMenuTrigger } from '@angular/material/menu';
 import { SelectionModel } from '@angular/cdk/collections';
-import { TableExportUtil, LocalStorageService, rowsAnimation } from '@shared';
+import { TableExportUtil, LocalStorageService } from '@shared';
 import { NgClass, DatePipe, CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -32,14 +26,29 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
 import { MatCardModule } from '@angular/material/card';
-import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
+import { CurdService } from 'app/services/curd.service';
+
 interface PropertySubtype {
-  propertyType: string;
+  _id?:string;
+  propertyType: string | { _id: string; ptname: string };//it can be string or object
   pstname: string;
+  status: string;
+}
+
+interface PropertyType {
+  _id?: string;
+  ptname: string;
   status: string;
 }
 
@@ -64,56 +73,144 @@ interface PropertySubtype {
   styleUrl: './property-subtype.component.scss'
 })
 export class PropertySubtypeComponent implements OnInit {
+
   propertyForm!: FormGroup;
   dataSource = new MatTableDataSource<PropertySubtype>();
   displayedColumns: string[] = ['propertyType', 'pstname', 'status', 'actions'];
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' }
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' }
   ];
-  propertyTypeOptions = [
-    { value: 'apartment', viewValue: 'Apartment' },
-    { value: 'villa', viewValue: 'Villa' },
-    { value: 'house', viewValue: 'House' }
-  ];
+  propertyTypeOptions: any[] = [];
+  propertySubtypeOptions: any;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  selectedRowId: any;
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog) { }
+  constructor(
+    private fb: FormBuilder,
+    public dialog: MatDialog,
+    private curdService: CurdService,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     this.createForm();
-    this.loadDummyData();
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.fetchPropertySubtypes();
+    this.fetchPropertyType();
   }
 
+  // Create form for property subtype
   createForm() {
     this.propertyForm = this.fb.group({
       propertyType: ['', Validators.required],
       pstname: ['', Validators.required],
-      status: ['', Validators.required]
+      status: ['', Validators.required],
     });
   }
 
-  loadDummyData() {
-    const dummyData: PropertySubtype[] = [
-      { propertyType: 'apartment', pstname: 'Studio', status: 'active' },
-      { propertyType: 'villa', pstname: 'Luxury', status: 'inactive' },
-      { propertyType: 'house', pstname: 'Bungalow', status: 'active' }
-    ];
-    this.dataSource.data = dummyData;
+  // Show Snackbar Message
+  showSnackBar(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
+
+
+  fetchPropertySubtypes(): void {
+    this.curdService.getData<PropertySubtype[]>('property-subtypes').subscribe({
+      next: (propertySubtypes) => {
+        this.dataSource.data = propertySubtypes;
+        this.propertySubtypeOptions = propertySubtypes;
+        this.refreshTable();
+        console.log('Property Subtypes:', propertySubtypes);
+      },
+      error: () => {
+        this.showSnackBar('Failed to load property subtypes.');
+      },
+    });
+  }
+  
+
+  fetchPropertyType(): void {
+    this.curdService.getData<PropertyType[]>('property-types').subscribe({
+      next: (propertytypes) => {
+        this.propertyTypeOptions = propertytypes.map((type) => ({
+          _id: type._id, // Use _id directly
+          ptname: type.ptname,
+        }));
+        console.log('Property Types:', this.propertyTypeOptions);
+      },
+      error: () => {
+        this.showSnackBar('Failed to load property types.');
+      },
+    });
+  }
+  
+  
 
   onSubmit() {
     if (this.propertyForm.valid) {
-      const newPropertySubtype: PropertySubtype = this.propertyForm.value;
-      this.dataSource.data = [...this.dataSource.data, newPropertySubtype];
-      this.propertyForm.reset();
-      this.refreshTable();
+      const newPropertySubtype: PropertySubtype = {
+        propertyType: this.propertyForm.value.propertyType, // Send only _id
+        pstname: this.propertyForm.value.pstname,
+        status: this.propertyForm.value.status,
+      };
+  
+      if (this.selectedRowId) {
+        // ✅ Use updateData for update
+        this.curdService
+          .updateData<PropertySubtype>(
+            `property-subtypes/${this.selectedRowId}`,
+            newPropertySubtype
+          )
+          .subscribe({
+            next: (res) => {
+              if (res) {
+                const index = this.dataSource.data.findIndex(
+                  (item) => item._id === this.selectedRowId
+                );
+                if (index > -1) {
+                  this.dataSource.data[index] = res;
+                  this.refreshTable();
+                }
+                this.showSnackBar('Property subtype updated successfully.');
+                this.propertyForm.reset();
+                this.selectedRowId = null; // Reset after update
+              }
+            },
+            error: () => {
+              this.showSnackBar('Failed to update property subtype.');
+            },
+          });
+      } else {
+        // ✅ Use postData for add
+        this.curdService
+          .postData<PropertySubtype>('property-subtypes', newPropertySubtype)
+          .subscribe({
+            next: (res) => {
+              if (res) {
+                this.dataSource.data = [...this.dataSource.data, res];
+                this.refreshTable();
+                this.showSnackBar('Property subtype added successfully.');
+                this.propertyForm.reset();
+              }
+            },
+            error: () => {
+              this.showSnackBar('Failed to add property subtype.');
+            },
+          });
+      }
+    } else {
+      this.showSnackBar('Please fill all required fields.');
     }
   }
+  
+  
+  
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -125,34 +222,60 @@ export class PropertySubtypeComponent implements OnInit {
   }
 
   editCall(row: PropertySubtype) {
-    console.log('Editing', row);
-    // Implement your edit logic here
+    console.log('Editing:', row);
+    this.selectedRowId = row._id; // Use _id for editing
+  
+    this.propertyForm.patchValue({
+      propertyType: typeof row.propertyType === 'object' ? row.propertyType._id : row.propertyType, // Handle both cases
+      pstname: row.pstname,
+      status: row.status,
+    });
   }
+  
 
   deleteItem(row: PropertySubtype) {
-    const index = this.dataSource.data.indexOf(row);
-    if (index > -1) {
-      this.dataSource.data.splice(index, 1);
-      this.refreshTable();
+    if (!row || !row._id) {
+      this.showSnackBar('Invalid item selected.');
+      return;
     }
+  
+    this.curdService.deleteData(`property-subtypes/${row._id}`).subscribe({
+      next: () => {
+        const index = this.dataSource.data.findIndex(
+          (item) => item._id === row._id
+        );
+        if (index > -1) {
+          this.dataSource.data.splice(index, 1);
+          this.dataSource.data = [...this.dataSource.data]; // Reassign to refresh
+          this.refreshTable();
+          this.showSnackBar('Property subtype deleted successfully.');
+        }
+      },
+      error: () => {
+        this.showSnackBar('Failed to delete property subtype.');
+      },
+    });
   }
+  
 
+
+  // Refresh table after changes
   refresh() {
-    this.loadDummyData();
+    this.refreshTable();
   }
 
+  // Add new item logic (if required later)
   addNew() {
     console.log('Adding new item');
-    // Implement your add new logic here
   }
 
-  exportExcel() {
-    // Implement your excel export logic here
-    console.log("Exporting to excel");
+  onCancel() {
+    this.propertyForm.reset(); 
+    this.selectedRowId = null; 
   }
-
-  trackByFn(index: number, item: any) {
-    return item.label;
+  
+  trackByFn(index: number, item: PropertySubtype) {
+    return item.pstname;
   }
 
   pageEvent(event: PageEvent) {
@@ -160,9 +283,11 @@ export class PropertySubtypeComponent implements OnInit {
   }
 
   private refreshTable() {
-    this.dataSource.data = [...this.dataSource.data];
-    this.dataSource = new MatTableDataSource<PropertySubtype>(this.dataSource.data);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    if (this.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
+  
 }

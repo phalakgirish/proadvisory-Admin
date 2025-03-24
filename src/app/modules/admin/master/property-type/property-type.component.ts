@@ -39,8 +39,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ImagePreviewDialogComponent } from '../image-preview-dialog/image-preview-dialog.component';
+import { CurdService } from 'app/services/curd.service';
 
 interface PropertyType {
+  _id?:string;
   ptname: string;
   status: string;
 }
@@ -65,61 +67,123 @@ interface PropertyType {
     MatIconModule,
     FeatherIconsComponent,
     MatCheckboxModule, 
+    
   ],
   templateUrl: './property-type.component.html',
   styleUrl: './property-type.component.scss'
 })
-export class PropertyTypeComponent implements OnInit {
+export class PropertyTypeComponent  implements OnInit {
   propertyForm!: FormGroup;
-  dataSource = new MatTableDataSource<PropertyType>();
+  dataSource = new MatTableDataSource<PropertyType>([]);
   selection = new SelectionModel<PropertyType>(true, []);
-  displayedColumns: string[] = ['select', 'ptname', 'status', 'actions'];
+  displayedColumns: string[] = [ 'ptname', 'status', 'actions'];
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' }
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' },
   ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog) { }
+  propertyOptions: PropertyType[] = [];
+  selectedRowId:any;
+
+  constructor(
+    private fb: FormBuilder,
+    public dialog: MatDialog,
+    private curdService: CurdService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.createForm();
-    this.loadDummyData();
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.fetchPropertyType();
   }
 
   createForm() {
     this.propertyForm = this.fb.group({
       ptname: ['', Validators.required],
-      status: ['', Validators.required]
+      status: ['', Validators.required],
     });
   }
 
-  loadDummyData() {
-    const dummyData: PropertyType[] = [ // Use PropertyType[] here
-      { ptname: 'Apartment', status: 'Active' },
-      { ptname: 'Villa', status: 'Active' },
-      { ptname: 'Independent House', status: 'Inactive' },
-      { ptname: 'Condominium', status: 'Active' },
-      { ptname: 'Townhouse', status: 'Inactive' },
-      { ptname: 'Duplex', status: 'Active' },
-      { ptname: 'Studio Apartment', status: 'Active' },
-      { ptname: 'Penthouse', status: 'Inactive' },
-      { ptname: 'Bungalow', status: 'Active' },
-      { ptname: 'Farmhouse', status: 'Active' },
-    ];
-    this.dataSource.data = dummyData;
+  fetchPropertyType(): void {
+    this.curdService.getData<PropertyType[]>('property-types').subscribe({
+      next: (propertytypes) => {
+        this.dataSource.data = propertytypes;
+        this.propertyOptions = propertytypes;
+        this.refreshTable();
+      },
+      error: () => {
+        this.showSnackBar('Failed to load property types.');
+      },
+    });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.propertyForm.valid) {
-      const newPropertyType: PropertyType = this.propertyForm.value;
-      this.dataSource.data = [...this.dataSource.data, newPropertyType];
-      this.propertyForm.reset();
+      const formData = this.propertyForm.value;
+  
+      if (this.selectedRowId) {
+        // Update existing property type
+        const updatedPropertyType: PropertyType = {
+          _id: this.selectedRowId,
+          ptname: formData.ptname,
+          status: formData.status,
+        };
+        this.update(updatedPropertyType);
+      } else {
+        // Add new property type
+        this.curdService.postData<PropertyType>('property-types', formData).subscribe({
+          next: (response) => {
+            this.dataSource.data = [...this.dataSource.data, response];
+            this.propertyForm.reset();
+            this.selectedRowId = null;
+            this.fetchPropertyType(); // Refresh table
+            this.showSnackBar('Property type added successfully!');
+          },
+          error: (error) => {
+            console.error('Error creating property type:', error);
+            this.showSnackBar('Failed to create property type.');
+          },
+        });
+      }
     }
+  }
+  
+
+  delete(row: any): void {
+    const propertyTypeName =
+      typeof row.ptname === 'string'
+        ? row.ptname
+        : 'Unknown Property Type';
+  
+    if (confirm(`Are you sure you want to delete property type: ${propertyTypeName}?`)) {
+      this.curdService.deleteData(`property-types/${row._id}`).subscribe({
+        next: () => {
+          this.dataSource.data = this.dataSource.data.filter(
+            (item) => item._id !== row._id
+          );
+          this.showSnackBar('Property type deleted successfully!');
+          this.refreshTable(); // <-- Add this to refresh the table
+        },
+        error: (err) => {
+          console.error('Error deleting property type:', err);
+          this.showSnackBar('Failed to delete property type.');
+        },
+      });
+    }
+  }
+  
+  
+  
+
+  showSnackBar(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
 
   applyFilter(event: Event) {
@@ -132,28 +196,30 @@ export class PropertyTypeComponent implements OnInit {
   }
 
   editCall(row: PropertyType) {
-    // Edit logic here
-    console.log('Editing', row);
+    // Set selected row ID for updating
+    this.selectedRowId = row._id;
+  
+    // Populate form with selected row data
+    this.propertyForm.patchValue({
+      ptname: row.ptname,
+      status: row.status,
+    });
   }
+  
 
   deleteItem(row: PropertyType) {
     const index = this.dataSource.data.indexOf(row);
     if (index > -1) {
       this.dataSource.data.splice(index, 1);
       this.refreshTable();
+      this.showSnackBar('Property type deleted successfully!');
     }
   }
 
-  viewImage(row: PropertyType) {
-    this.dialog.open(ImagePreviewDialogComponent, {
-      data: { imageUrl: row.ptname } // Assuming ptname holds the image URL
-    });
-  }
-
   masterToggle() {
-    this.isAllSelected() ?
-      this.selection.clear() :
-      this.dataSource.data.forEach(row => this.selection.select(row));
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.dataSource.data.forEach((row) => this.selection.select(row));
   }
 
   isAllSelected() {
@@ -162,31 +228,66 @@ export class PropertyTypeComponent implements OnInit {
     return numSelected === numRows;
   }
 
-  removeSelectedRows() {
-    this.selection.selected.forEach(item => {
-      const index: number = this.dataSource.data.findIndex(d => d === item);
-      this.dataSource.data.splice(index, 1);
-    });
-    this.refreshTable();
-    this.selection.clear(); // Clear the selection after removing rows
+  createPropertyType(formData: any): void {
+    const newPropertyType: PropertyType = {
+      ptname: formData.ptname,
+      status: formData.status,
+    };
+  
+    this.curdService.postData<PropertyType>('property-types', newPropertyType).subscribe(
+      (response) => {
+        this.dataSource.data = [...this.dataSource.data, response];
+        this.propertyForm.reset();
+        this.selectedRowId = null; // Clear selected ID
+        this.fetchPropertyType();
+        this.showSnackBar('Property type added successfully!');
+      },
+      (error) => {
+        console.error('Error creating property type:', error);
+        this.showSnackBar('Failed to create property type.');
+      }
+    );
   }
+  
+
+  update(row: PropertyType): void {
+    this.curdService.updateData(`property-types/${row._id}`, row).subscribe({
+      next: (response) => {
+        const index = this.dataSource.data.findIndex((item) => item._id === row._id);
+        if (index !== -1) {
+          this.dataSource.data[index] = response;
+          this.refreshTable();
+        }
+        this.resetForm(); // Reset after update
+        this.showSnackBar('Property type updated successfully!');
+      },
+      error: (err) => {
+        console.error('Error updating property type:', err);
+        this.showSnackBar('Failed to update property type.');
+      },
+    });
+  }
+  
+  
+  
+  resetForm(): void {
+    this.propertyForm.reset();
+    this.selectedRowId = null;
+  }
+  
 
   refresh() {
-    // Refresh logic here (e.g., reload data from API)
-    this.loadDummyData();
+    this.fetchPropertyType();
   }
 
-  addNew() {
-    // Implement your add new logic here
-    console.log('Adding new item');
+  addNew(): void {
+    this.resetForm();
+    console.log('Ready to add new property type.');
   }
+  
 
-  exportExcel() {
-    // Excel export logic here
-  }
-
-  trackByFn(index: number, item: any) {
-    return item.label; // Assuming your items have a 'label' property
+  trackByFn(index: number, item: PropertyType) {
+    return item.ptname;
   }
 
   isSelected(row: PropertyType): boolean {
@@ -195,12 +296,13 @@ export class PropertyTypeComponent implements OnInit {
 
   pageEvent(event: PageEvent) {
     console.log('Page event:', event);
-    // Handle page change event here
+    // Handle page change logic if required
   }
 
   private refreshTable() {
-    this.dataSource.data = [...this.dataSource.data];
-    this.dataSource = new MatTableDataSource<PropertyType>(this.dataSource.data);
+    this.dataSource = new MatTableDataSource<PropertyType>(
+      this.dataSource.data
+    );
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
