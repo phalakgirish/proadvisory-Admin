@@ -52,8 +52,9 @@
           <!-- Form Actions -->
           <div class="row">
             <div class="col-sm-12">
-              <button mat-raised-button color="primary" type="submit" [disabled]="!propertyForm.valid">
-                Update
+              <button class="m-l-8 m-r-8" [disabled]="!propertyForm.valid" mat-flat-button color="primary"
+                type="submit">
+                {{ selectedRowId ? 'Update' : 'Submit' }}
               </button>
               <!-- Cancel Button -->
               <button type="button" mat-flat-button color="warn" (click)="onCancel()">

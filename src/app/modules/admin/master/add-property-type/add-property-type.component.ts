@@ -40,7 +40,7 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ImagePreviewDialogComponent } from '../image-preview-dialog/image-preview-dialog.component';
 import { CurdService } from 'app/services/curd.service';
-import { Router, RouterLink } from '@angular/router';
+import { Route, Router } from '@angular/router';
 
 interface PropertyType {
   _id?:string;
@@ -49,7 +49,7 @@ interface PropertyType {
 }
 
 @Component({
-  selector: 'app-property-type',
+  selector: 'app-add-property-type',
   imports: [ReactiveFormsModule,
     CommonModule,
     PageHeaderComponent,
@@ -66,13 +66,11 @@ interface PropertyType {
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
-    FeatherIconsComponent,
-    MatCheckboxModule, 
-  ],
-  templateUrl: './property-type.component.html',
-  styleUrl: './property-type.component.scss'
+    MatCheckboxModule],
+  templateUrl: './add-property-type.component.html',
+  styleUrl: './add-property-type.component.scss'
 })
-export class PropertyTypeComponent  implements OnInit {
+export class AddPropertyTypeComponent  implements OnInit {
   propertyForm!: FormGroup;
   dataSource = new MatTableDataSource<PropertyType>([]);
   selection = new SelectionModel<PropertyType>(true, []);
@@ -93,7 +91,7 @@ export class PropertyTypeComponent  implements OnInit {
     public dialog: MatDialog,
     private curdService: CurdService,
     private snackBar: MatSnackBar,
-    public router: Router
+    public router :Router,
   ) {}
 
   ngOnInit(): void {
@@ -103,7 +101,9 @@ export class PropertyTypeComponent  implements OnInit {
 
   createForm() {
     this.propertyForm = this.fb.group({
-      ptname: ['', Validators.required],
+      ptname: [ '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
       status: ['', Validators.required],
     });
   }
@@ -142,8 +142,7 @@ export class PropertyTypeComponent  implements OnInit {
             this.selectedRowId = null;
             this.fetchPropertyType(); // Refresh table
             this.showSnackBar('Property type added successfully!');
-          
-
+            this.router.navigate(['/master/property-type']);
           },
           error: (error) => {
             console.error('Error creating property type:', error);
@@ -198,15 +197,16 @@ export class PropertyTypeComponent  implements OnInit {
     }
   }
 
-  editCall(row: PropertyType): void {
-    this.router.navigate(['/master/edit-property-type', row._id], {
-      queryParams: {
-        ptname: row.ptname,
-        status: row.status,
-      },
+  editCall(row: PropertyType) {
+    // Set selected row ID for updating
+    this.selectedRowId = row._id;
+  
+    // Populate form with selected row data
+    this.propertyForm.patchValue({
+      ptname: row.ptname,
+      status: row.status,
     });
   }
-  
   
 
   deleteItem(row: PropertyType) {
@@ -284,7 +284,7 @@ export class PropertyTypeComponent  implements OnInit {
 
   addNew(): void {
     this.resetForm();
-    this.router.navigate(['/master/add-property-type']);
+    console.log('Ready to add new property type.');
   }
   
 
@@ -298,6 +298,7 @@ export class PropertyTypeComponent  implements OnInit {
 
   pageEvent(event: PageEvent) {
     console.log('Page event:', event);
+    // Handle page change logic if required
   }
 
   private refreshTable() {

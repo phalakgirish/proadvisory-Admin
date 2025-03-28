@@ -40,6 +40,19 @@ import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { ImagePreviewDialogComponent } from '../image-preview-dialog/image-preview-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CurdService } from 'app/services/curd.service';
+
+interface PropertyType {
+  _id?: string;
+  ptname: string;
+  status: string;
+}
+
+interface QueryParams {
+  ptname?: string;
+  status?: string;
+}
+
 
 @Component({
   selector: 'app-edit-property-type',
@@ -64,56 +77,81 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class EditPropertyTypeComponent implements OnInit {
   propertyForm!: FormGroup;
+  propertyId!: string;
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' }
-  ];  // Example Status Options
-  propertyTypeData: any;  // This will hold the property type data passed for editing
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' },
+  ];
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private curdService: CurdService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    // Get the 'id' parameter from the route (the property type ID)
-    const typeId = this.route.snapshot.paramMap.get('id');
-    
-    // Simulate fetching data for the property type with the given id
-    this.loadPropertyTypeData(typeId);
-
-    // Initialize the form with existing data
     this.createForm();
-  }
 
-  loadPropertyTypeData(id: string | null): void {
-    // Simulate fetching the property type data (replace with actual API service call)
-    const dummyData = [
-      { id: '1', ptname: 'Residential', status: 'active' },
-      { id: '2', ptname: 'Commercial', status: 'inactive' }
-    ];
+    // Get query params and patch values
+    this.route.paramMap.subscribe((params) => {
+      this.propertyId = params.get('id')!;
+    });
 
-    // Find the property type by ID
-    this.propertyTypeData = dummyData.find(item => item.id === id);
+    this.route.queryParams.subscribe((queryParams: QueryParams) => {
+      if (queryParams) {
+        this.propertyForm.patchValue({
+          ptname: queryParams.ptname,
+          status: queryParams.status,
+        });
+      }
+    });
+    
+    
+    
   }
 
   createForm(): void {
-    // Initialize the form with the existing property type data
     this.propertyForm = this.fb.group({
-      ptname: [this.propertyTypeData?.ptname, [Validators.required]],
-      status: [this.propertyTypeData?.status, [Validators.required]]
+      ptname: [ '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
+      status: ['', Validators.required],
     });
   }
 
   onSubmit(): void {
     if (this.propertyForm.valid) {
-      // Update the property type data (send it to your API)
-      const updatedPropertyType = this.propertyForm.value;
-      console.log('Updated Property Type:', updatedPropertyType);
+      const updatedPropertyType: PropertyType = {
+        _id: this.propertyId,
+        ...this.propertyForm.value,
+      };
 
-      // After submitting the form, navigate to another page (e.g., property type list)
-      this.router.navigate(['/property-type-list']);
+      this.curdService
+        .updateData(`property-types/${this.propertyId}`, updatedPropertyType)
+        .subscribe({
+          next: () => {
+            this.showSnackBar('Property type updated successfully!');
+            this.router.navigate(['/master']);
+          },
+          error: (error) => {
+            console.error('Error updating property type:', error);
+            this.showSnackBar('Failed to update property type.');
+          },
+        });
     }
+  }
+
+  showSnackBar(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+
+  cancelEdit(): void {
+    this.router.navigate(['/master']);
   }
 }

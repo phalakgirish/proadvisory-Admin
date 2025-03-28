@@ -11,9 +11,9 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
                                 <mat-label>Name</mat-label>
-                                <input matInput formControlName="name" required>
-                                @if (staffForm.get('name')?.hasError('required') ||
-                                staffForm.get('name')?.touched) {
+                                <input matInput formControlName="Name" required>
+                                @if (staffForm.get('Name')?.hasError('required') ||
+                                staffForm.get('Name')?.touched) {
                                 <mat-error>
                                     Please enter a valid Name
                                 </mat-error>
@@ -23,20 +23,18 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width " appearance="outline" subscriptSizing="dynamic">
                                 <mat-label>User Type</mat-label>
-                                <mat-select formControlName="usertype" required>
-                                    <mat-option [value]="'super-admin'">
-                                        Super Admin
-                                    </mat-option>
+                                <mat-select formControlName="userType" required>
+
                                     <mat-option [value]="'admin'">
-                                       Admin
+                                        Admin
                                     </mat-option>
-                                    <mat-option [value]="'manager'">
-                                        Manager
+                                    <mat-option [value]="'advisor'">
+                                        Advisor
                                     </mat-option>
-                                   
+
                                 </mat-select>
-                                @if (staffForm.get('usertype')?.hasError('usertype') ||
-                                staffForm.get('usertype')?.touched) {
+                                @if (staffForm.get('userType')?.hasError('userType') ||
+                                staffForm.get('userType')?.touched) {
                                 <mat-error>
                                     User Type is required
                                 </mat-error>
@@ -48,9 +46,9 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
                                 <mat-label>Mobile</mat-label>
-                                <input matInput formControlName="mobile" type="number">
-                                @if (staffForm.get('mobile')?.hasError('required') ||
-                                staffForm.get('mobile')?.touched) {
+                                <input matInput formControlName="MobileNo" type="number">
+                                @if (staffForm.get('MobileNo')?.hasError('required') ||
+                                staffForm.get('MobileNo')?.touched) {
                                 <mat-error>
                                     Please enter a valid mobile
                                 </mat-error>
@@ -86,10 +84,10 @@
                         <div class="col-sm-6">
                             <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
                                 <mat-label>Joining date</mat-label>
-                                <input matInput [matDatepicker]="picker" formControlName="date">
+                                <input matInput [matDatepicker]="picker" formControlName="joiningDate">
                                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                                 <mat-datepicker #picker></mat-datepicker>
-                                @if (staffForm.get('date')?.hasError('required')) {
+                                @if (staffForm.get('joiningDate')?.hasError('required')) {
                                 <mat-error>
                                     Please select joining date
                                 </mat-error>
@@ -126,11 +124,16 @@
                     </div> -->
                     <div class="row">
                         <div class="col-sm-12">
-                            <button class="m-l-8 m-r-8" [disabled]="!staffForm.valid " mat-flat-button
-                                color="primary">Submit</button>
-                            <button type="button" mat-flat-button color="warn">Cancel</button>
+                            <button class="m-l-8 m-r-8" [disabled]="!staffForm.valid" mat-flat-button color="primary"
+                                (click)="onSubmit()">
+                                Submit
+                            </button>
+                            <button type="button" mat-flat-button color="warn" (click)="onCancel()">
+                                Cancel
+                            </button>
                         </div>
                     </div>
+
                 </form>
             </mat-card-content>
         </mat-card>

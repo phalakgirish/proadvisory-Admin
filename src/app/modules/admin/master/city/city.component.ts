@@ -41,6 +41,7 @@ import { Subject } from 'rxjs';
 import { City } from 'app/interfaces/city';
 import { CityService } from 'app/services/city.service';
 import { CurdService } from 'app/services/curd.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-city',
@@ -60,7 +61,6 @@ import { CurdService } from 'app/services/curd.service';
         MatCheckboxModule,
         MatTableModule,
         MatSortModule,
-        NgClass,
         FeatherIconsComponent,
         MatRippleModule,
         MatProgressSpinnerModule,
@@ -73,18 +73,22 @@ import { CurdService } from 'app/services/curd.service';
 export class CityComponent implements OnInit {
   cityForm: FormGroup;
   columnDefinitions = [
-    { def: 'select', label: 'Select', visible: true },
     { def: 'cname', label: 'City Name', visible: true },
     { def: 'status', label: 'Status', visible: true },
     { def: 'actions', label: 'Actions', visible: true },
   ];
-  displayedColumns: string[] = this.columnDefinitions.map(col => col.def);
+  displayedColumns: string[] = this.columnDefinitions.map((col) => col.def);
   dataSource = new MatTableDataSource<City>([]);
   selection = new SelectionModel<City>(true, []);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private fb: FormBuilder, private curdService: CurdService, private snackBar: MatSnackBar) {
+  constructor(
+    private fb: FormBuilder,
+    private curdService: CurdService,
+    private snackBar: MatSnackBar,
+    public router: Router
+  ) {
     this.cityForm = this.fb.group({
       cname: ['', Validators.required],
       status: ['', Validators.required],
@@ -107,15 +111,17 @@ export class CityComponent implements OnInit {
       verticalPosition: 'top',
     });
   }
-  
+
   removeSelectedRows(): void {
     const selectedRows = this.selection.selected;
     if (selectedRows.length > 0) {
       if (confirm('Are you sure you want to delete the selected rows?')) {
-        selectedRows.forEach(city => {
+        selectedRows.forEach((city) => {
           this.curdService.deleteData(`city/${city.id}`).subscribe({
             next: () => {
-              this.dataSource.data = this.dataSource.data.filter(row => row.id !== city.id);
+              this.dataSource.data = this.dataSource.data.filter(
+                (row) => row.id !== city.id
+              );
               this.selection.clear();
               this.showSnackBar('Selected rows deleted successfully!');
             },
@@ -133,19 +139,21 @@ export class CityComponent implements OnInit {
 
   deleteItem(row: City): void {
     if (!row.id) {
-      console.error("Error: City ID is undefined", row);
-      this.showSnackBar("Error: City ID is missing.");
+      console.error('Error: City ID is undefined', row);
+      this.showSnackBar('Error: City ID is missing.');
       return;
     }
-  
+
     if (confirm(`Are you sure you want to delete "${row.cname}"?`)) {
       this.curdService.deleteData(`city/${row.id}`).subscribe({
         next: () => {
-          this.dataSource.data = this.dataSource.data.filter(item => item.id !== row.id);
+          this.dataSource.data = this.dataSource.data.filter(
+            (item) => item.id !== row.id
+          );
           this.showSnackBar(`City "${row.cname}" deleted successfully!`);
         },
         error: (error: any) => {
-          console.error("Error deleting city:", error);
+          console.error('Error deleting city:', error);
           this.showSnackBar(`Failed to delete city "${row.cname}".`);
         },
       });
@@ -156,6 +164,7 @@ export class CityComponent implements OnInit {
     this.cityForm.reset();
     this.cityForm.markAsUntouched();
     this.cityForm.markAsPristine();
+    this.router.navigate(['/master/add-city']);
   }
 
   refresh(): void {
@@ -166,15 +175,14 @@ export class CityComponent implements OnInit {
   fetchCities(): void {
     this.curdService.getData<City[]>('city').subscribe({
       next: (cities) => {
-        console.log("Fetched cities:", cities);
+        console.log('Fetched cities:', cities);
         this.dataSource.data = cities;
       },
       error: (error) => {
-        console.error("Error fetching cities:", error);
+        console.error('Error fetching cities:', error);
       },
     });
   }
-  
 
   onSubmit(): void {
     if (this.cityForm.valid) {
@@ -193,15 +201,15 @@ export class CityComponent implements OnInit {
     }
   }
 
+  // ✅ Updated Edit Call to Navigate to Edit City Component
   editCall(row: City): void {
-    this.cityForm.patchValue({
-      cname: row.cname,
-      status: row.status,
+    this.router.navigate(['/master/edit-city'], {
+      queryParams: {
+        id: row.id,
+        cname: row.cname,
+        status: row.status,
+      },
     });
-
-    this.cityForm.get('id')?.setValue(row.id);
-
-    this.showSnackBar(`Editing city: ${row.cname}`);
   }
 
   isAllSelected(): boolean {
@@ -214,7 +222,7 @@ export class CityComponent implements OnInit {
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
-      this.dataSource.data.forEach(row => this.selection.select(row));
+      this.dataSource.data.forEach((row) => this.selection.select(row));
     }
   }
 
@@ -224,6 +232,8 @@ export class CityComponent implements OnInit {
   }
 
   getDisplayedColumns(): string[] {
-    return this.columnDefinitions.filter(col => col.visible).map(col => col.def);
+    return this.columnDefinitions
+      .filter((col) => col.visible)
+      .map((col) => col.def);
   }
 }

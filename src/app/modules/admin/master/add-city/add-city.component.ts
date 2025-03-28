@@ -37,18 +37,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { City } from 'app/interfaces/city';
+import { CityService } from 'app/services/city.service';
 import { CurdService } from 'app/services/curd.service';
-
-
-interface CityQueryParams {
-  cname?: string;
-  status?: string;
-  _id?: string;
-}
-
+import { Router } from '@angular/router';
 @Component({
-  selector: 'app-edit-city',
+  selector: 'app-add-city',
   imports: [PageHeaderComponent,
     MatCardModule,
     MatFormFieldModule,
@@ -68,23 +63,17 @@ interface CityQueryParams {
     MatProgressSpinnerModule,
     MatMenuModule,
     MatPaginatorModule],
-  templateUrl: './edit-city.component.html',
-  styleUrl: './edit-city.component.scss'
+  templateUrl: './add-city.component.html',
+  styleUrl: './add-city.component.scss'
 })
-export class EditCityComponent implements OnInit {
-  cityForm!: FormGroup;
-  cityId: string | null = null;
-  statusOptions = [
-    { value: 'Active', viewValue: 'Active' },
-    { value: 'Inactive', viewValue: 'Inactive' },
-  ];
+export class AddCityComponent implements OnInit {
+  cityForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private curdService: CurdService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router 
   ) {
     this.cityForm = this.fb.group({
       cname: [ '',
@@ -94,63 +83,8 @@ export class EditCityComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      if (params['id']) {
-        this.cityId = params['id'];
-        this.patchFormData(params);
-      }
-    });
-  }
+  ngOnInit(): void {}
 
-  // ✅ Correctly Patching Data to Form
-  patchFormData(data: any): void {
-    this.cityForm.patchValue({
-      cname: data['cname'],
-      status: this.statusOptions.find(
-        (option) => option.value === data['status']
-      )?.value || '',
-    });
-  }
-
-  // ✅ Handle Add or Update Logic
-  onSubmit(): void {
-    if (this.cityForm.valid) {
-      const cityData = this.cityForm.value;
-
-      if (this.cityId) {
-        // 🔄 Update City
-        this.curdService
-          .updateData(`city/${this.cityId}`, cityData)
-          .subscribe({
-            next: () => {
-              this.showSnackBar('City updated successfully!');
-              this.router.navigate(['/master/city']);
-            },
-            error: (err) => {
-              console.error('Error updating city:', err);
-              this.showSnackBar('Failed to update city.');
-            },
-          });
-      } else {
-        // ➕ Add New City
-        this.curdService.postData('city', cityData).subscribe({
-          next: () => {
-            this.showSnackBar('City added successfully!');
-            this.router.navigate(['/master/city']);
-          },
-          error: (err) => {
-            console.error('Error adding city:', err);
-            this.showSnackBar('Failed to add city.');
-          },
-        });
-      }
-    } else {
-      this.showSnackBar('Please fill all required fields.');
-    }
-  }
-
-  // ✅ Show Snackbar Messages
   showSnackBar(message: string): void {
     this.snackBar.open(message, 'Close', {
       duration: 3000,
@@ -159,8 +93,34 @@ export class EditCityComponent implements OnInit {
     });
   }
 
-  // ✅ Cancel and Navigate Back
-  onCancel(): void {
-    this.router.navigate(['/master/city']);
+  onSubmit(): void {
+    if (this.cityForm.valid) {
+      const newCity: City = this.cityForm.value;
+
+      this.curdService.postData('city', newCity).subscribe({
+        next: (response: City) => {
+          console.log('City added:', response);
+
+          this.showSnackBar(`City "${response.cname}" added successfully!`);
+
+          setTimeout(() => {
+            this.router.navigate(['/master/city']);
+          });
+        },
+        error: (error) => {
+          console.error('Error adding city:', error);
+          this.showSnackBar('Failed to add city. Please try again.');
+        },
+      });
+    } else {
+      this.showSnackBar('Please fill all required fields correctly.');
+    }
+  }
+
+
+  addNew(): void {
+    this.cityForm.reset();
+    this.cityForm.markAsUntouched();
+    this.cityForm.markAsPristine();
   }
 }

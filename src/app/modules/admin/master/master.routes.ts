@@ -15,6 +15,12 @@ import { EditInventoryComponent } from './edit-inventory/edit-inventory.componen
 import { EditPropertyInventoryComponent } from './edit-property-inventory/edit-property-inventory.component';
 import { EditPropertySubtypeComponent } from './edit-property-subtype/edit-property-subtype.component';
 import { EditPropertyTypeComponent } from './edit-property-type/edit-property-type.component';
+import { AddPropertyTypeComponent } from './add-property-type/add-property-type.component';
+import { AddCityComponent } from './add-city/add-city.component';
+import { AddInventoryComponent } from './add-inventory/add-inventory.component';
+import { AddAreaComponent } from './add-area/add-area.component';
+import { AddPropertySubtypeComponent } from './add-property-subtype/add-property-subtype.component';
+import { AddAmenityComponent } from './add-amenity/add-amenity.component';
 
 
 export const MASTER_ROUTE: Route[] = [
@@ -28,6 +34,10 @@ export const MASTER_ROUTE: Route[] = [
     component: AmenitiesComponent,
   },
   {
+    path: 'add-amenities',
+    component: AddAmenityComponent,
+  },
+  {
     path: 'edit-amenities',
     component: EditAmenityComponent,
   },
@@ -35,7 +45,10 @@ export const MASTER_ROUTE: Route[] = [
     path: 'city',
     component: CityComponent,
   },
- 
+  {
+    path: 'add-city',
+    component: AddCityComponent,
+  },
   {
     path: 'edit-city',
     component: EditCityComponent,
@@ -49,8 +62,16 @@ export const MASTER_ROUTE: Route[] = [
     component: EditAreaComponent,
   },
   {
+    path: 'add-area',
+    component: AddAreaComponent,
+  },
+  {
     path: 'inventory',
     component: InventoryComponent,
+  },
+  {
+    path: 'add-inventory',
+    component: AddInventoryComponent,
   },
   {
     path: 'edit-inventory',
@@ -60,21 +81,29 @@ export const MASTER_ROUTE: Route[] = [
     path: 'property-type',
     component: PropertyTypeComponent,
   },
-  {
-    path: 'edit-property-type',
-    component: EditPropertyTypeComponent,
+  { 
+    path: 'edit-property-type/:id',
+    component: EditPropertyTypeComponent
   },
   {
     path: 'property-subtype',
     component: PropertySubtypeComponent,
   },
   {
-    path: 'edit-property-subtype',
+    path: 'add-property-subtype',
+    component: AddPropertySubtypeComponent,
+  },
+  {
+    path: 'edit-property-subtype/:id',
     component: EditPropertySubtypeComponent,
   },
   {
     path: 'edit-property-inventory',
     component: EditPropertyInventoryComponent,
+  },
+  {
+    path: 'add-property-type',
+    component: AddPropertyTypeComponent,
   },
   {
     path: 'img-dialog',

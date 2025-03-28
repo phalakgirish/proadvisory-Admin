@@ -54,7 +54,7 @@ interface PropertyType {
 }
 
 @Component({
-  selector: 'app-property-subtype',
+  selector: 'app-add-property-subtype',
   imports: [CommonModule,
     MatIconModule,
     MatTableModule,
@@ -68,12 +68,12 @@ interface PropertyType {
     MatCardModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    PageHeaderComponent, FeatherIconsComponent
+    PageHeaderComponent
   ],
-  templateUrl: './property-subtype.component.html',
-  styleUrl: './property-subtype.component.scss'
+  templateUrl: './add-property-subtype.component.html',
+  styleUrl: './add-property-subtype.component.scss'
 })
-export class PropertySubtypeComponent implements OnInit {
+export class AddPropertySubtypeComponent implements OnInit {
 
   propertyForm!: FormGroup;
   dataSource = new MatTableDataSource<PropertySubtype>();
@@ -199,6 +199,7 @@ export class PropertySubtypeComponent implements OnInit {
               if (res) {
                 this.dataSource.data = [...this.dataSource.data, res];
                 this.refreshTable();
+                this.router.navigate(['/master/property-subtype']);
                 this.showSnackBar('Property subtype added successfully.');
                 this.propertyForm.reset();
               }
@@ -227,44 +228,55 @@ export class PropertySubtypeComponent implements OnInit {
 
   editCall(row: PropertySubtype) {
     console.log('Editing:', row);
-    this.router.navigate([`/master/edit-property-subtype`, row._id]);
+    this.selectedRowId = row._id; // Use _id for editing
+  
+    this.propertyForm.patchValue({
+      propertyType: typeof row.propertyType === 'object' ? row.propertyType._id : row.propertyType, // Handle both cases
+      pstname: row.pstname,
+      status: row.status,
+    });
   }
   
-  
 
-  deleteItem(row: PropertySubtype): void {
-    if (!row._id) {
-      console.error('Error: Property Subtype ID is undefined', row);
-      this.showSnackBar('Error: Property Subtype ID is missing.');
+  deleteItem(row: PropertySubtype) {
+    if (!row || !row._id) {
+      this.showSnackBar('Invalid item selected.');
       return;
     }
   
-    // Show confirmation dialog using window.confirm
-    if (confirm(`Are you sure you want to delete "${row.pstname}"?`)) {
-      this.curdService.deleteData(`property-subtypes/${row._id}`).subscribe({
-        next: () => {
-          // Filter out the deleted item and update the table
-          this.dataSource.data = this.dataSource.data.filter(
-            (item) => item._id !== row._id
-          );
-          this.showSnackBar(`Property subtype "${row.pstname}" deleted successfully!`);
-        },
-        error: (error: any) => {
-          console.error('Error deleting property subtype:', error);
-          this.showSnackBar(`Failed to delete property subtype "${row.pstname}".`);
-        },
-      });
-    }
+    this.curdService.deleteData(`property-subtypes/${row._id}`).subscribe({
+      next: () => {
+        const index = this.dataSource.data.findIndex(
+          (item) => item._id === row._id
+        );
+        if (index > -1) {
+          this.dataSource.data.splice(index, 1);
+          this.dataSource.data = [...this.dataSource.data]; // Reassign to refresh
+          this.refreshTable();
+          this.showSnackBar('Property subtype deleted successfully.');
+        }
+      },
+      error: () => {
+        this.showSnackBar('Failed to delete property subtype.');
+      },
+    });
   }
   
 
-  addNew() {
-    this.router.navigate(['/master/add-property-subtype']);
+
+  // Refresh table after changes
+  refresh() {
+    this.refreshTable();
   }
-  
+
+  // Add new item logic (if required later)
+  addNew() {
+    console.log('Adding new item');
+  }
 
   onCancel() {
-    this.router.navigate(['/master/property-subtype']);
+    this.propertyForm.reset(); 
+    this.selectedRowId = null; 
   }
   
   trackByFn(index: number, item: PropertySubtype) {

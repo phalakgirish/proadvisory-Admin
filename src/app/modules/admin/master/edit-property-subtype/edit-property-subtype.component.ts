@@ -38,6 +38,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CurdService } from 'app/services/curd.service';
 @Component({
   selector: 'app-edit-property-subtype',
   imports: [CommonModule,
@@ -58,61 +59,110 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class EditPropertySubtypeComponent implements OnInit {
   propertyForm!: FormGroup;
-  propertyTypeOptions = [
-    { value: 'residential', viewValue: 'Residential' },
-    { value: 'commercial', viewValue: 'Commercial' }
-  ];  // Example Property Types
+  propertyTypeOptions: any[] = [];
+  subtypeId: string | null = null;
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' }
-  ];  // Example Status Options
-  propertySubtypeData: any;  // This will hold the property subtype data passed for editing
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' }
+  ];
 
   constructor(
     private fb: FormBuilder,
+    private curdService: CurdService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    // Get the 'id' parameter from the route (the property subtype ID)
-    const subtypeId = this.route.snapshot.paramMap.get('id');
-    
-    // Simulate fetching data for the property subtype with the given id
-    this.loadPropertySubtypeData(subtypeId);
-
-    // Initialize the form with existing data
     this.createForm();
+    this.fetchPropertyTypes();
+
+    // Get ID from route and fetch property subtype
+    this.subtypeId = this.route.snapshot.paramMap.get('id');
+    if (this.subtypeId) {
+      this.fetchPropertySubtype(this.subtypeId);
+    }
   }
 
-  loadPropertySubtypeData(id: string | null): void {
-    // Simulate fetching the property subtype data (replace with actual API service call)
-    const dummyData = [
-      { id: '1', propertyType: 'residential', pstname: 'Villa', status: 'active' },
-      { id: '2', propertyType: 'commercial', pstname: 'Office', status: 'inactive' }
-    ];
-
-    // Find the property subtype by ID
-    this.propertySubtypeData = dummyData.find(item => item.id === id);
-  }
-
-  createForm(): void {
-    // Initialize the form with the existing property subtype data
+  // Create form for editing property subtype
+  createForm() {
     this.propertyForm = this.fb.group({
-      propertyType: [this.propertySubtypeData?.propertyType, [Validators.required]],
-      pstname: [this.propertySubtypeData?.pstname, [Validators.required]],
-      status: [this.propertySubtypeData?.status, [Validators.required]]
+      propertyType: ['', Validators.required],
+      pstname: [
+        '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)],
+      ],
+      status: ['', Validators.required],
     });
   }
 
-  onSubmit(): void {
-    if (this.propertyForm.valid) {
-      // Update the property subtype data (send it to your API)
-      const updatedPropertySubtype = this.propertyForm.value;
-      console.log('Updated Property Subtype:', updatedPropertySubtype);
+  // Fetch property types for dropdown
+  fetchPropertyTypes(): void {
+    this.curdService.getData<any[]>('property-types').subscribe({
+      next: (propertyTypes) => {
+        this.propertyTypeOptions = propertyTypes.map((type) => ({
+          _id: type._id,
+          ptname: type.ptname,
+        }));
+      },
+      error: () => {
+        this.showSnackBar('Failed to load property types.');
+      },
+    });
+  }
 
-      // After submitting the form, navigate to another page (e.g., property subtype list)
-      this.router.navigate(['/property-subtype-list']);
+  // Fetch property subtype by ID and patch values
+  fetchPropertySubtype(id: string): void {
+    this.curdService.getData<any>(`property-subtypes/${id}`).subscribe({
+      next: (res) => {
+        if (res) {
+          this.propertyForm.patchValue({
+            propertyType:
+              typeof res.propertyType === 'object'
+                ? res.propertyType._id
+                : res.propertyType,
+            pstname: res.pstname,
+            status: res.status,
+          });
+        }
+      },
+      error: () => {
+        this.showSnackBar('Failed to load property subtype.');
+      },
+    });
+  }
+
+  // Update property subtype
+  onSubmit() {
+    if (this.propertyForm.valid && this.subtypeId) {
+      this.curdService
+        .updateData(`property-subtypes/${this.subtypeId}`, this.propertyForm.value)
+        .subscribe({
+          next: () => {
+            this.showSnackBar('Property subtype updated successfully.');
+            this.router.navigate(['/master/property-subtype']);
+          },
+          error: () => {
+            this.showSnackBar('Failed to update property subtype.');
+          },
+        });
+    } else {
+      this.showSnackBar('Please fill all required fields.');
     }
+  }
+
+  // Show Snackbar Message
+  showSnackBar(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+
+  // Cancel and redirect to the property subtype list
+  onCancel() {
+    this.router.navigate(['/master/property-subtype']);
   }
 }

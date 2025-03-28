@@ -26,17 +26,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FeatherComponent } from 'angular-feather';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
-import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurdService } from 'app/services/curd.service';
 
 interface Amenity {
+  _id?:string;
   amenityName: string;
   status: string;
   imageUrl: string;
 }
 
 @Component({
-  selector: 'app-amenities',
+  selector: 'app-add-amenity',
   imports: [CommonModule,
     PageHeaderComponent,
     FormsModule,
@@ -53,13 +54,11 @@ interface Amenity {
     MatPaginatorModule,
     MatSortModule,
     MatIconModule,
-    MatCheckboxModule,
-    FeatherIconsComponent,
-],
-  templateUrl: './amenities.component.html',
-  styleUrl: './amenities.component.scss'
+    MatCheckboxModule],
+  templateUrl: './add-amenity.component.html',
+  styleUrl: './add-amenity.component.scss'
 })
-export class AmenitiesComponent implements OnInit {
+export class AddAmenityComponent implements OnInit {
   amenityForm!: FormGroup;
   dataSource = new MatTableDataSource<Amenity>();
   statusOptions = [
@@ -67,6 +66,13 @@ export class AmenitiesComponent implements OnInit {
     { value: 'inactive', viewValue: 'Inactive' }
   ];
   selection = new SelectionModel<Amenity>(true, []);
+  dummyData: Amenity[] = [
+    { amenityName: 'Amenity 1', status: 'Active', imageUrl: 'assets/images/image_7c9ca6.jpg' },
+    { amenityName: 'Amenity 2', status: 'Inactive', imageUrl: 'assets/images/image_7c9ca6.jpg' },
+    { amenityName: 'Amenity 3', status: 'Active', imageUrl: 'assets/images/image_7c9ca6.jpg' },
+    { amenityName: 'Amenity 4', status: 'Inactive', imageUrl: 'assets/images/image_7c9ca6.jpg' },
+    { amenityName: 'Amenity 5', status: 'Active', imageUrl: 'assets/images/image_7c9ca6.jpg' },
+  ];
   
   displayedColumns: string[] = [ 'amenityName', 'status', 'actions'];
 
@@ -75,7 +81,7 @@ export class AmenitiesComponent implements OnInit {
 
 
 
-  constructor(private fb: FormBuilder, public dialog: MatDialog,private router:Router,private curdService:CurdService,
+  constructor(private fb: FormBuilder, public dialog: MatDialog,private snackBar:MatSnackBar,private curdService:CurdService,
 
   ) {}
 
@@ -83,43 +89,57 @@ export class AmenitiesComponent implements OnInit {
     this.createForm();
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.fetchCities();
   }
 
   createForm(): void {
     this.amenityForm = this.fb.group({
-      amenityName: ['', [Validators.required]],
+      amenityName: ['',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
       status: ['', [Validators.required]],
       imageUrl: ['']
     });
   }
 
-  fetchCities(): void {
-      this.curdService.getData<Amenity[]>('amenities').subscribe({
-        next: (amenities) => {
-          console.log('Fetched Amenities:', amenities);
-          this.dataSource.data = amenities;
-        },
-        error: (error) => {
-          console.error('Error fetching cities:', error);
-        },
-      });
-    }
+  showSnackBar(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+  
 
   addNew(): void {
-    this.router.navigate(['/master/add-amenities']);
+    this.amenityForm.reset(); // Reset the form for a new entry
   }
 
   onSubmit(): void {
     if (this.amenityForm.valid) {
-      const newAmenity = this.amenityForm.value;
-      this.dataSource.data = [...this.dataSource.data, newAmenity];
-      this.dataSource = new MatTableDataSource(this.dataSource.data); 
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-      this.amenityForm.reset();
+      const formData = new FormData();
+      formData.append('amenityName', this.amenityForm.value.amenityName);
+      formData.append('status', this.amenityForm.value.status);
+      formData.append('imageUrl', this.amenityForm.value.imageUrl); // Append file here
+  
+      this.curdService.postData('amenities', formData).subscribe({
+        next: (res) => {
+          if (res) {
+            this.showSnackBar('Amenity added successfully!');
+            this.amenityForm.reset();
+          }
+        },
+        error: (err) => {
+          console.error('Error adding amenity:', err);
+          this.showSnackBar('Failed to add amenity.');
+        },
+      });
+    } else {
+      this.showSnackBar('Please fill all required fields.');
     }
   }
+  
+  
+  
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -166,6 +186,9 @@ export class AmenitiesComponent implements OnInit {
     this.selection.clear();
   }
 
+  refresh(): void {
+    this.dataSource.data = [...this.dummyData]; // Reload dummy data
+  }
 
   exportExcel(): void {
     
@@ -181,5 +204,6 @@ export class AmenitiesComponent implements OnInit {
 
   pageEvent(event: PageEvent) {
     console.log("Page event:", event);
+    // Handle page change event here
   }
 }

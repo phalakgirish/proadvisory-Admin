@@ -20,7 +20,7 @@ export const STAFFS_ROUTE: Route[] = [
     component: AddStaffComponent,
   },
   {
-    path: 'edit-staff',
+    path: 'edit-staff/:id',
     component: EditStaffComponent,
   },
   {

@@ -32,14 +32,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
 interface Inventory {
-  _id?:string;
+  _id?: string;
   inventoryName: string;
   noOfBKH: string;
   status: string;
 }
 
 @Component({
-  selector: 'app-inventory',
+  selector: 'app-add-inventory',
   imports: [PageHeaderComponent,
     MatCardModule,
     MatFormFieldModule,
@@ -55,19 +55,18 @@ interface Inventory {
     MatCheckboxModule,
     MatTableModule,
     MatSortModule,
-    FeatherIconsComponent,
     MatRippleModule,
     MatProgressSpinnerModule,
     MatMenuModule,
-    MatPaginatorModule,],
-  templateUrl: './inventory.component.html',
-  styleUrl: './inventory.component.scss'
+    MatPaginatorModule],
+  templateUrl: './add-inventory.component.html',
+  styleUrl: './add-inventory.component.scss'
 })
-export class InventoryComponent implements OnInit {
+export class AddInventoryComponent implements OnInit {
   inventoryForm!: FormGroup;
-  inventoryOptions:any;
+  inventoryOptions: any;
   dataSource = new MatTableDataSource<Inventory>([]);
-  bkhOptions: string[] = ['0','1', '2', '3', '4', '5'];
+  bkhOptions: string[] = ['0', '1', '2', '3', '4', '5'];
   statusOptions = [
     { value: 'Active', viewValue: 'Active' },
     { value: 'Inactive', viewValue: 'Inactive' }
@@ -86,9 +85,10 @@ export class InventoryComponent implements OnInit {
     { def: 'actions', label: 'Actions', visible: true }
   ];
 
-  constructor(private fb: FormBuilder,private curdService :CurdService,private snackBar: MatSnackBar,
-private router:Router
-  ) {}
+  constructor(private fb: FormBuilder, private curdService: CurdService, private snackBar: MatSnackBar,
+    private router: Router,
+
+  ) { }
 
   ngOnInit(): void {
     this.createForm();
@@ -99,13 +99,16 @@ private router:Router
 
   createForm(): void {
     this.inventoryForm = this.fb.group({
-      _id: [null], 
-      inventoryName: ['', [Validators.required]],
+      _id: [null],
+      inventoryName: [
+        '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
       noOfBKH: ['', [Validators.required]],
       status: ['', [Validators.required]],
     });
   }
-  
+
 
 
   showSnackBar(message: string) {
@@ -128,11 +131,11 @@ private router:Router
       },
     });
   }
-  
+
   deleteData(row: Inventory): void {
     const inventoryName =
       typeof row.inventoryName === 'string' ? row.inventoryName : 'Unknown Inventory';
-  
+
     if (confirm(`Are you sure you want to delete inventory: ${inventoryName}?`)) {
       this.curdService.deleteData(`inventories/${row._id}`).subscribe({
         next: () => {
@@ -149,11 +152,16 @@ private router:Router
       });
     }
   }
-  
-  
+
+
 
   addNew(): void {
-    this.router.navigate(['/master/add-inventory']);
+    const newInventory: Inventory = {
+      inventoryName: 'New Inventory',
+      noOfBKH: '1',
+      status: 'Active'
+    };
+    this.dataSource.data = [...this.dataSource.data, newInventory];
   }
 
   getDisplayedColumns(): string[] {
@@ -163,7 +171,7 @@ private router:Router
   onSubmit(): void {
     if (this.inventoryForm.valid) {
       const formData = this.inventoryForm.value;
-  
+
       if (this.isEditMode && formData._id) {
         // ✅ Update existing inventory
         this.curdService.updateData<Inventory>(`inventories/${formData._id}`, formData).subscribe({
@@ -174,6 +182,7 @@ private router:Router
               this.refreshTable(); // ✅ Refresh dataSource
             }
             this.showSnackBar('Inventory updated successfully!');
+
             this.resetForm();
           },
           error: () => {
@@ -188,6 +197,7 @@ private router:Router
             this.dataSource.data = [...this.dataSource.data, res];
             this.refreshTable(); // ✅ Refresh dataSource
             this.showSnackBar('Inventory added successfully!');
+            this.router.navigate(['/master/inventory']);
             this.resetForm();
           },
           error: () => {
@@ -199,26 +209,26 @@ private router:Router
       this.showSnackBar('Please fill all required fields!');
     }
   }
-  
-  
+
+
   resetForm(): void {
     this.inventoryForm.reset();
-    this.isEditMode = false; 
+    this.isEditMode = false;
     this.inventoryForm.patchValue({
-      _id: null, 
+      _id: null,
       inventoryName: '',
       noOfBKH: '',
       status: '',
     });
   }
-  
-  
-  
+
+
+
   onCancel(): void {
     this.inventoryForm.reset();
     this.showSnackBar('Form reset successfully!');
   }
-  
+
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -226,17 +236,15 @@ private router:Router
   }
 
   editCall(row: Inventory): void {
-    this.router.navigate(['/master/edit-inventory'], {
-      queryParams: {
-        _id: row._id,
-        inventoryName: row.inventoryName,
-        noOfBKH: row.noOfBKH,
-        status: row.status,
-      },
+    this.isEditMode = true;
+    this.inventoryForm.patchValue({
+      _id: row._id,
+      inventoryName: row.inventoryName,
+      noOfBKH: row.noOfBKH,
+      status: row.status,
     });
   }
-  
-  
+
 
   masterToggle(): void {
     this.isAllSelected() ? this.selection.clear() : this.dataSource.data.forEach(row => this.selection.select(row));
@@ -253,13 +261,13 @@ private router:Router
     this.fetchInventory();
     this.showSnackBar('Data refreshed successfully!');
   }
-  
+
   refreshTable(): void {
     this.dataSource = new MatTableDataSource(this.dataSource.data);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
-  
+
 
   trackByFn(index: number, item: any): any {
     return item.label;

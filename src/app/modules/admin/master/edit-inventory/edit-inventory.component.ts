@@ -38,6 +38,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FeatherIconsComponent } from '@shared/components/feather-icons/feather-icons.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CurdService } from 'app/services/curd.service';
 @Component({
   selector: 'app-edit-inventory',
   imports: [PageHeaderComponent,
@@ -64,58 +65,81 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class EditInventoryComponent implements OnInit {
   inventoryForm!: FormGroup;
-  inventoryData: any; // This will hold the inventory data passed for editing
-  bkhOptions = [1, 2, 3, 4, 5]; // Example BKH options
+  isEditMode = false;
+  inventoryId!: string;
+  bkhOptions: string[] = ['0','1', '2', '3', '4', '5'];
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' }
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' }
   ];
-
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
+    private curdService: CurdService,
+    private snackBar: MatSnackBar,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Get the 'id' parameter from the route (the inventory ID)
-    const inventoryId = this.route.snapshot.paramMap.get('id');
-    
-    // Simulate fetching data for the inventory with the given id
-    this.loadInventoryData(inventoryId);
-
-    // Initialize the form with existing data
     this.createForm();
-  }
-
-  loadInventoryData(id: string | null): void {
-    // Simulated data (replace this with an actual API call to fetch inventory details)
-    const dummyData = [
-      { id: '1', inventoryName: 'Inventory 1', noOfBKH: 2, status: 'active' },
-      { id: '2', inventoryName: 'Inventory 2', noOfBKH: 3, status: 'inactive' },
-    ];
-
-    // Find the inventory by ID
-    this.inventoryData = dummyData.find(inventory => inventory.id === id);
+    this.route.queryParams.subscribe((params) => {
+      if (params['_id']) {
+        this.isEditMode = true;
+        this.inventoryId = params['_id'];
+        this.patchForm(params);
+      }
+    });
   }
 
   createForm(): void {
-    // Initialize the form with the existing inventory data
     this.inventoryForm = this.fb.group({
-      inventoryName: [this.inventoryData?.inventoryName, [Validators.required]],
-      noOfBKH: [this.inventoryData?.noOfBKH, [Validators.required]],
-      status: [this.inventoryData?.status, [Validators.required]]
+      inventoryName: [
+        '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
+      noOfBKH: ['', [Validators.required]],
+      status: ['', [Validators.required]],
+    });
+  }
+
+  patchForm(data: any): void {
+    this.inventoryForm.patchValue({
+      inventoryName: data.inventoryName,
+      noOfBKH: data.noOfBKH,
+      status: data.status,
     });
   }
 
   onSubmit(): void {
     if (this.inventoryForm.valid) {
-      // Update the inventory data (you can send it to your API here)
-      const updatedInventory = this.inventoryForm.value;
-      console.log('Updated Inventory:', updatedInventory);
-
-      // Navigate to another page or show a success message
-      this.router.navigate(['/inventory-list']);  // Example redirect to the inventory list page
+      const formData = this.inventoryForm.value;
+      if (this.isEditMode) {
+        this.curdService
+          .updateData(`inventories/${this.inventoryId}`, formData)
+          .subscribe({
+            next: () => {
+              this.showSnackBar('Inventory updated successfully!');
+              this.router.navigate(['/master/inventory']);
+            },
+            error: () => {
+              this.showSnackBar('Failed to update inventory.');
+            },
+          });
+      }
+    } else {
+      this.showSnackBar('Please fill all required fields!');
     }
+  }
+
+  showSnackBar(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/master/inventory']);
   }
 }

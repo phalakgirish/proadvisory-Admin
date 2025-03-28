@@ -33,7 +33,7 @@ interface Area {
 
 
 @Component({
-  selector: 'app-area',
+  selector: 'app-add-area',
   imports: [CommonModule,
     MatIconModule,
     MatTableModule,
@@ -47,20 +47,20 @@ interface Area {
     MatCardModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    PageHeaderComponent, FeatherIconsComponent],
-  templateUrl: './area.component.html',
-  styleUrl: './area.component.scss'
+    PageHeaderComponent],
+  templateUrl: './add-area.component.html',
+  styleUrl: './add-area.component.scss'
 })
-export class AreaComponent implements OnInit, AfterViewInit {
+export class AddAreaComponent implements OnInit, AfterViewInit {
   areaForm!: FormGroup;
   dataSource = new MatTableDataSource<Area>();
-  displayedColumns: string[] = [ 'cname', 'aname', 'pincode', 'status', 'actions'];
+  displayedColumns: string[] = ['select', 'cname', 'aname', 'pincode', 'status', 'actions'];
   selection = new SelectionModel<Area>(true, []);
   isEditMode = false; 
   cityOptions: any;
   statusOptions = [
-    { value: 'active', viewValue: 'Active' },
-    { value: 'inactive', viewValue: 'Inactive' },
+    { value: 'Active', viewValue: 'Active' },
+    { value: 'Inactive', viewValue: 'Inactive' },
   ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -89,7 +89,9 @@ export class AreaComponent implements OnInit, AfterViewInit {
     this.areaForm = this.fb.group({
       _id: [null], 
       cname: ['', Validators.required],
-      aname: ['', Validators.required],
+      aname: [ '',
+        [Validators.required, Validators.pattern(/^[a-zA-Z0-9\s]*$/)]
+      ],
       pincode: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
       status: ['', Validators.required],
     });
@@ -146,7 +148,8 @@ export class AreaComponent implements OnInit, AfterViewInit {
           next: (newArea) => {
             this.dataSource.data = [...this.dataSource.data, newArea];
             this.dataSource._updateChangeSubscription();
-            this.resetForm(`Area "${newArea.aname}" added successfully!`); // ✅ Pass add message
+            this.router.navigate(['/master/area']);
+            this.resetForm(`Area "${newArea.aname}" added successfully!`); 
           },
           error: () => {
             this.showSnackBar('Failed to add area.');
@@ -224,17 +227,16 @@ export class AreaComponent implements OnInit, AfterViewInit {
   
 
   editCall(row: Area): void {
-    this.router.navigate(['/master/edit-area'], {
-      queryParams: {
-        _id: row._id,
-        cname: row.cname?._id || row.cname, 
-        aname: row.aname,
-        pincode: row.pincode,
-        status: row.status,
-      },
+    this.areaForm.patchValue({
+      _id: row._id, 
+      cname: row.cname?._id || row.cname,
+      aname: row.aname,
+      pincode: row.pincode,
+      status: row.status,
     });
+    this.isEditMode = true;
+    this.showSnackBar(`Editing area: ${row.aname}`);
   }
-  
   
 
   applyFilter(event: Event): void {
@@ -271,7 +273,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
   
   
   addNew(): void {
-    this.router.navigate(['/master/add-area']);
+    this.router.navigate(['/master/area']);
   }
   
 

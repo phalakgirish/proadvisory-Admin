@@ -1,72 +1,7 @@
 <app-page-header></app-page-header>
 <div class="row">
   <div class="col-sm-12">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-subtitle>Add Property Subtype</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <form class="form-field-full" [formGroup]="propertyForm" (ngSubmit)="onSubmit()">
-          <div class="row m-b-24">
-            <!-- Property Type -->
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Property Type</mat-label>
-                <mat-select formControlName="propertyType" required>
-                  <mat-option *ngFor="let type of propertyTypeOptions" [value]="type._id">{{ type.ptname
-                    }}</mat-option>
-                </mat-select>
-                <mat-error *ngIf="propertyForm.get('propertyType')?.hasError('required')">
-                  Property Type is required
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <!-- Property Subtype Name -->
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Property Subtype Name</mat-label>
-                <input matInput formControlName="pstname" required />
-                <mat-error *ngIf="propertyForm.get('pstname')?.hasError('required')">
-                  Please enter a valid Property Subtype Name
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <!-- Status -->
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Status</mat-label>
-                <mat-select formControlName="status" required>
-                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-                    {{ status.viewValue }}
-                  </mat-option>
-                </mat-select>
-                <mat-error *ngIf="propertyForm.get('status')?.hasError('required')">
-                  Please select a status
-                </mat-error>
-              </mat-form-field>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="row">
-            <div class="col-sm-12">
-              <button class="m-l-8 m-r-8" [disabled]="!propertyForm.valid" mat-flat-button color="primary"
-                type="submit">
-                {{ selectedRowId ? 'Update' : 'Submit' }}
-              </button>
-              <!-- Cancel Button -->
-              <button type="button" mat-flat-button color="warn" (click)="onCancel()">
-                Cancel
-              </button>
-            </div>
-          </div>
-
-        </form>
-      </mat-card-content>
-    </mat-card>
-
+   
     <!-- Table Section -->
     <mat-card>
       <mat-card-content>
@@ -86,10 +21,7 @@
                   <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
                     <mat-icon>add_circle_outline</mat-icon>
                   </button>
-                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey"
-                    matTooltip="Refresh">
-                    <mat-icon>refresh</mat-icon>
-                  </button>
+                 
                 </div>
               </div>
             </div>

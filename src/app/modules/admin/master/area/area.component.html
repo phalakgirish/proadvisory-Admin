@@ -1,75 +1,7 @@
 <app-page-header></app-page-header>
 <div class="row">
   <div class="col-sm-12">
-    <!-- Add Area Form -->
-    <mat-card>
-      <mat-card-header>
-        <mat-card-subtitle>Add Area</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <form class="form-field-full" [formGroup]="areaForm" (ngSubmit)="onSubmit()">
-          <div class="row m-b-24">
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>City Name</mat-label>
-                <mat-select formControlName="cname" required>
-                  <mat-option *ngFor="let city of cityOptions" [value]="city.id">
-                    {{ city.cname }}
-                  </mat-option>
-                </mat-select>
-                <mat-error *ngIf="areaForm.get('cname')?.hasError('required')">
-                  Please select a City Name
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline" subscriptSizing="dynamic">
-                <mat-label>Area Name</mat-label>
-                <input matInput formControlName="aname" required>
-                @if (areaForm.get('aname')?.hasError('required') || areaForm.get('aname')?.touched) {
-                  <mat-error *ngIf="areaForm.get('aname')?.hasError('required')">
-                    Please enter a valid Area Name
-                  </mat-error>
-                }
-              </mat-form-field>
-            </div>
-          </div>
-          <div class="row m-b-24">
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Pincode</mat-label>
-                <input matInput formControlName="pincode" required>
-                <mat-error *ngIf="areaForm.get('pincode')?.hasError('pattern')">
-                  Pincode must be exactly 6 digits.
-                </mat-error>
-              </mat-form-field>
-            </div>
-            <div class="col-sm-6">
-              <mat-form-field class="example-full-width" appearance="outline">
-                <mat-label>Status</mat-label>
-                <mat-select formControlName="status" required>
-                  <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-                    {{ status.viewValue }}
-                  </mat-option>
-                </mat-select>
-                <mat-error *ngIf="areaForm.get('status')?.hasError('required')">
-                  Please select a status
-                </mat-error>
-              </mat-form-field>
-            </div>
-          </div>
-          <div class="row m-b-24">
-            <div class="col-sm-6">
-              <button class="m-l-8 m-r-8" [disabled]="!areaForm.valid" mat-flat-button color="primary">
-                Submit
-              </button>
-              <button type="button" mat-flat-button color="warn" (click)="addNew()">Cancel</button>
-            </div>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-
+   
     <!-- Table Section -->
     <mat-card>
       <mat-card-content>
@@ -86,16 +18,9 @@
               </div>
               <div class="col-sm-4">
                 <div class="right-side-btn">
-                  <button mat-icon-button [hidden]="!selection.hasValue()" (click)="removeSelectedRows()"
-                    class="tbl-header-btn text-red" matTooltip="Delete">
-                    <mat-icon>delete_outline</mat-icon>
-                  </button>
                   <button mat-icon-button (click)="addNew()" class="tbl-header-btn text-green" matTooltip="Add">
                     <mat-icon>add_circle_outline</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="refresh()" class="tbl-header-btn text-dark-grey" matTooltip="Refresh">
-                    <mat-icon>refresh</mat-icon>
-                  </button>
+                </button>
                 </div>
               </div>
             </div>
@@ -106,19 +31,7 @@
             <div class="responsive_table">
               <table mat-table [dataSource]="dataSource" matSort class="mat-cell advance-table">
                 <!-- Checkbox Column -->
-                <ng-container matColumnDef="select">
-                  <mat-header-cell *matHeaderCellDef [ngClass]="'tbl-col-width-per-6'">
-                    <mat-checkbox (change)="$event ? masterToggle() : null"
-                      [checked]="selection.hasValue() && isAllSelected()" color="primary"
-                      [indeterminate]="selection.hasValue() && !isAllSelected()" [ngClass]="'tbl-checkbox'">
-                    </mat-checkbox>
-                  </mat-header-cell>
-                  <mat-cell *matCellDef="let row" [ngClass]="'tbl-col-width-per-6'">
-                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-                      [checked]="selection.isSelected(row)" [ngClass]="'tbl-checkbox'" color="primary">
-                    </mat-checkbox>
-                  </mat-cell>
-                </ng-container>
+                
 
                 <!-- City Name Column -->
                 <ng-container matColumnDef="cname">

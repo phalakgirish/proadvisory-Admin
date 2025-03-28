@@ -30,6 +30,7 @@
     "master.inventory": "Inventory",
     "master.property-inventory": "Property Inventory",
     "master.property-type": "Property Type",
+    "master.add-property-type": "Add Property Type",
     "master.property-subtype": "Property Subtype",
     "Blogs": "Blogs",
     "categoeries": "Categoeries",
